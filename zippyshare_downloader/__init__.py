@@ -60,7 +60,7 @@ class Zippyshare:
         else:
             return info
         
-    def _download(self, *urls):
+    def _download(self, urls):
         for url in urls:
             r = self._request_get(url)
             info = self._get_info(url, r)
