@@ -16,8 +16,8 @@ setup(
   author = 'Rahman Yusuf',              
   author_email = 'danipart4@gmail.com',
   url = 'https://github.com/trollfist20/zippyshare-downloader',  
-  download_url = 'https://github.com/trollfist20/youtube-search-requests/archive/%s.tar.gz' % (__VERSION__),
-  keywords = ['youtube', 'youtube-search'], 
+  download_url = 'https://github.com/trollfist20/zippyshare-downloader/archive/%s.tar.gz' % (__VERSION__),
+  keywords = ['zippyshare', 'zippyshare-download'], 
   install_requires=[           
           'requests',
       ],
