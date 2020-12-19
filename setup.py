@@ -1,6 +1,7 @@
 import pathlib
 from setuptools import setup
-from zippyshare_downloader.__version__ import VERSION
+
+VERSION = 'v0.0.1.5'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()

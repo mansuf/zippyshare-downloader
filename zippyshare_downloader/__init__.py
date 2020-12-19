@@ -12,8 +12,6 @@ from bs4 import BeautifulSoup
 from download import download as dl
 import requests
 
-__VERSION__ = 'v0.0.1.3'
-
 class Zippyshare:
     def __init__(self, verbose=True, progress_bar=True, replace=True):
         self._verbose = verbose
