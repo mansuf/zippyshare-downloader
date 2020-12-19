@@ -20,6 +20,8 @@ setup(
   keywords = ['zippyshare', 'zippyshare-download'], 
   install_requires=[           
           'requests',
+          'bs4',
+          'download'
       ],
   classifiers=[
     'Development Status :: 3 - Alpha',
