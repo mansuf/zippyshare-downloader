@@ -35,11 +35,14 @@ class Zippyshare:
     def _get_info(self, u, r: requests.Request):
         parser = BeautifulSoup(r.text, 'html.parser')
         list_infos = []
+        print(parser.find_all('font'))
         for _i in parser.find_all('font'):
             i = str(_i)
             if i.startswith('<font style="line-height:18px; font-size: 13px;">'):
                 list_infos.append(i)
             elif i.startswith('<font style="line-height:22px; font-size: 14px;">'):
+                list_infos.append(i)
+            elif i.startswith('<font style="line-height:20px; font-size: 14px;">'):
                 list_infos.append(i)
         return {
                 'name_file': getStartandEndvalue(list_infos[0], '>', '<'),
