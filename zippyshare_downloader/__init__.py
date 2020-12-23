@@ -35,7 +35,6 @@ class Zippyshare:
     def _get_info(self, u, r: requests.Request):
         parser = BeautifulSoup(r.text, 'html.parser')
         list_infos = []
-        print(parser.find_all('font'))
         for _i in parser.find_all('font'):
             i = str(_i)
             if i.startswith('<font style="line-height:18px; font-size: 13px;">'):
