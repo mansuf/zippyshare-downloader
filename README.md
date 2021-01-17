@@ -2,7 +2,12 @@
 
 Download file from zippyshare directly from python
 
-Simple usage:
+### Installation
+```
+pip install zippyshare-downloader
+```
+
+### Simple usage:
 
 ```python
 
@@ -13,7 +18,7 @@ z.download('give zippyshare url here')
 
 ```
 
-extract info usage:
+### extract info usage:
 
 ```python
 
