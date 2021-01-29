@@ -11,8 +11,13 @@ from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
 from download import download as dl
 import requests
+import math
 
 class Zippyshare:
+    ALLOWED_NAMES = {
+        k: v for k, v in math.__dict__.items() if not k.startswith("__")
+    }
+
     def __init__(self, verbose=True, progress_bar=True, replace=True):
         self._verbose = verbose
         self._progress_bar = progress_bar
@@ -27,10 +32,11 @@ class Zippyshare:
         url_download_init = getStartandEndvalue(element_value, '"')
         random_number = getStartandEndvalue(element_value, '(', ')')
         url = {}
-        exec('url_number = str(%s)' % (random_number), globals(), url)
+        # Now using self.evaluate() to safely do math calculations
+        url_number = str(self.evaluate(random_number))
         continuation_download_url_init = getStartandEndvalue(element_value, '(')
         continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
-        return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url['url_number'] + continuation_download_url
+        return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
     def _get_info(self, u, r: requests.Request):
         parser = BeautifulSoup(r.text, 'html.parser')
@@ -73,3 +79,18 @@ class Zippyshare:
 
     def extract_info(self, url: str, download=True):
         return self._extract_info(url, download=download)
+
+    # Credit for the evaluate() method: Leodanis Pozo Ramos  https://realpython.com/python-eval-function/
+    def evaluate(self, expression):
+        """Evaluate a math expression."""
+
+        # Compile the expression
+        code = compile(expression, "<string>", "eval")
+
+        # Validate allowed names
+        for name in code.co_names:
+            if name not in ALLOWED_NAMES:
+                    raise NameError(f"The use of '{name}' is not allowed. Expression used: %s" % (expression))
+
+        return eval(code, {"__builtins__": {}}, self.ALLOWED_NAMES)
+
