@@ -7,9 +7,12 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
+__VERSION__ = 'v0.0.13'
+
 from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
 from download import download as dl
+from .utils import check_valid_zippyshare_url
 import requests
 import math
 
@@ -23,7 +26,14 @@ class Zippyshare:
         self._progress_bar = progress_bar
         self._replace = replace
     
+    def _logger_info(self, message):
+        if self._verbose:
+            print('[INFO] %s' % (message))
+        else:
+            return
+
     def _get_url(self, u, r: requests.Request):
+        self._logger_info('Getting Download URL')
         startpos_init = r.text.find('document.getElementById(\'dlbutton\').href')
         scrapped_init = r.text[startpos_init:]
         endpos_init = scrapped_init.find('</script>')
@@ -38,6 +48,7 @@ class Zippyshare:
         return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
     def _get_info(self, u, r: requests.Request):
+        self._logger_info('Parsing info')
         if 'File has expired and does not exist anymore on this server' in r.text:
             raise FileNotFoundError('File has expired and does not exist anymore')
         parser = BeautifulSoup(r.text, 'html.parser')
@@ -61,12 +72,15 @@ class Zippyshare:
             }
 
     def _request_get(self, url):
+        self._logger_info('Fetching URL')
         return requests.get(url)
 
     def _extract_info(self, url, download=True):
+        check_valid_zippyshare_url(url)
         r = self._request_get(url)
         info = self._get_info(url, r)
         if download:
+            self._logger_info('Downloading "%s"' % (info['name_file']))
             dl(info['download_url'], info['name_file'], progressbar=self._progress_bar, verbose=self._verbose, replace=self._replace)
             return info
         else:
