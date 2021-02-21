@@ -1,7 +1,7 @@
 import pathlib
 from setuptools import setup
 
-VERSION = 'v0.0.12'
+VERSION = 'v0.0.13'
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
@@ -16,6 +16,12 @@ setup(
   long_description_content_type= 'text/markdown',
   author = 'Rahman Yusuf',              
   author_email = 'danipart4@gmail.com',
+  entry_points= {
+    'console_scripts': [
+      'zippyshare-dl=zippyshare_downloader.__main__:main',
+      'zippyshare-downloader=zippyshare_downloader.__main__:main'
+    ]
+  },
   url = 'https://github.com/trollfist20/zippyshare-downloader',  
   download_url = 'https://github.com/trollfist20/zippyshare-downloader/archive/%s.tar.gz' % (VERSION),
   keywords = ['zippyshare', 'zippyshare-download'], 
