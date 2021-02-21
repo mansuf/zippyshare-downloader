@@ -7,7 +7,22 @@ Download file from zippyshare directly from python
 pip install zippyshare-downloader
 ```
 
-### Simple usage:
+### Command Line Interface (CLI) Usage
+
+```bash
+
+zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose --progress-bar
+
+zippyshare-downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose --progress-bar
+
+# do this if "zippyshare-dl" or "zippyshare-downloader" didn't work
+python3 -m zippyshare_downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose --progress-bar
+
+# Output: {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
+```
+
+
+### Simple usage
 
 ```python
 
@@ -18,7 +33,7 @@ z.download('give zippyshare url here')
 
 ```
 
-### extract info usage:
+### Getting Information usage
 
 ```python
 
@@ -29,5 +44,5 @@ info = z.extract_info('give zippyshare url here')
 
 print(info)
 
-# {'name_file': ..., 'size': ..., 'date_upload': ....}
+# {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
 ```
