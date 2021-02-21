@@ -31,7 +31,6 @@ class Zippyshare:
         element_value = scrapped[:scrapped.find(';')].replace('document.getElementById(\'dlbutton\').href = ', '')
         url_download_init = getStartandEndvalue(element_value, '"')
         random_number = getStartandEndvalue(element_value, '(', ')')
-        url = {}
         # Now using self.evaluate() to safely do math calculations
         url_number = str(self.evaluate(random_number))
         continuation_download_url_init = getStartandEndvalue(element_value, '(')
@@ -39,20 +38,25 @@ class Zippyshare:
         return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
     def _get_info(self, u, r: requests.Request):
+        if 'File has expired and does not exist anymore on this server' in r.text:
+            raise FileNotFoundError('File has expired and does not exist anymore')
         parser = BeautifulSoup(r.text, 'html.parser')
         list_infos = []
-        for _i in parser.find_all('font'):
-            i = str(_i)
-            if i.startswith('<font style="line-height:18px; font-size: 13px;">'):
-                list_infos.append(i)
-            elif i.startswith('<font style="line-height:22px; font-size: 14px;">'):
-                list_infos.append(i)
-            elif i.startswith('<font style="line-height:20px; font-size: 14px;">'):
-                list_infos.append(i)
+        for element in parser.find_all('font'):
+            str_element = str(element)
+            # Size file, Uploaded
+            if str_element.startswith('<font style="line-height:18px; font-size: 13px;">'):
+                list_infos.append(element)
+            # Name file
+            elif str_element.startswith('<font style="line-height:22px; font-size: 14px;">'):
+                list_infos.append(element)
+            # Name file
+            elif str_element.startswith('<font style="line-height:20px; font-size: 14px;">'):
+                list_infos.append(element)
         return {
-                'name_file': getStartandEndvalue(list_infos[0], '>', '<'),
-                'size': getStartandEndvalue(list_infos[1], '>', '<'),
-                'date_upload': getStartandEndvalue(list_infos[2], '>', '<'),
+                'name_file': list_infos[0].decode_contents(),
+                'size': list_infos[1].decode_contents(),
+                'date_upload': list_infos[2].decode_contents(),
                 'download_url': self._get_url(u, r)
             }
 
@@ -89,7 +93,7 @@ class Zippyshare:
 
         # Validate allowed names
         for name in code.co_names:
-            if name not in ALLOWED_NAMES:
+            if name not in self.ALLOWED_NAMES:
                     raise NameError(f"The use of '{name}' is not allowed. Expression used: %s" % (expression))
 
         return eval(code, {"__builtins__": {}}, self.ALLOWED_NAMES)
