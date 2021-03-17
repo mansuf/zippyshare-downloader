@@ -46,3 +46,8 @@ print(info)
 
 # {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
 ```
+
+### FAQ
+
+**Q:** I always getting `NameError: The use of "bla bla" is not allowed`, what should i do ?<br>
+**A:** Zippyshare always change their code, Please update to last version, if your zippyshare-downloader is latest version, then open a issue [here](https://github.com/mansuf/zippyshare-downloader/issues)
