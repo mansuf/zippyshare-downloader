@@ -176,7 +176,7 @@ class Zippyshare:
             info = self._get_info(url, r)
             dl(info['download_url'], info['name_file'], progressbar=self._progress_bar, verbose=self._verbose, replace=self._replace)
 
-    def download(self, *urls):
+    def download(self, urls: list):
         self._download(urls)
 
     def extract_info(self, url: str, download=True):
