@@ -176,7 +176,11 @@ class Zippyshare:
             info = self._get_info(url, r)
             dl(info['download_url'], info['name_file'], progressbar=self._progress_bar, verbose=self._verbose, replace=self._replace)
 
-    def download(self, urls: list):
+    def download(self, urls: list or tuple):
+        if isinstance(urls, list) or isinstance(urls, tuple):
+            pass
+        else:
+            raise InvalidURL('urls expecting list or tuple type, got %s' % (type(urls)))
         self._download(urls)
 
     def extract_info(self, url: str, download=True):
