@@ -22,29 +22,58 @@ python3 -m zippyshare_downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.h
 ```
 
 
-### Simple usage
+### Embedding Usage
+
+**Use zippyshare-downloader module in your python script**
 
 ```python
 
 from zippyshare_downloader import Zippyshare
 
-z = Zippyshare()
-z.download('give zippyshare url here')
+# By default, verbose is True, progress_bar is True, and replace is True
+z = Zippyshare(verbose=True, progress_bar=True, replace=True)
+
+
+# If you want to get info from Zippyshare URL
+# and you want to download it
+# do: z.extract_info('give Zippyshare URL here')
+# see example below
+
+# by default, download is True
+info = z.extract_info('give zippyshare url here', download=True)
+
+print(info)
+# Output: {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
+
+# If you want to get info from Zippyshare URL
+# BUT, you don't wanna download it
+# do: z.extract_info('give zippyshare URL here', download=False)
+# see example below
+
+info = z.extract_info('give zippyshare url here', download=False)
+
+...
+
+# If you want to download from list or tuple urls
+# do: z.download(['give zippyshare url here'])
+# see example below
+
+URLS = [
+    'give zippyshare url here',
+    'give zippyshare url here',
+    'give zippyshare url here',
+    'give zippyshare url here',
+    'give zippyshare url here',
+]
+
+z.download(URLS)
 
 ```
 
-### Getting Information usage
+### Minimum Python version
 
-```python
-
-from zippyshare_downloader import Zippyshare
-
-z = Zippyshare()
-info = z.extract_info('give zippyshare url here')
-
-print(info)
-
-# {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
+```
+3.x
 ```
 
 ### FAQ
