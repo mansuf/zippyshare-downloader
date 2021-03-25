@@ -7,13 +7,13 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
-__VERSION__ = 'v0.0.13'
+__VERSION__ = 'v0.0.15'
 
 from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
 from download import download as dl
 from .utils import check_valid_zippyshare_url
-from .errors import ParserError
+from .errors import ParserError, InvalidURL
 import requests
 import math
 import io
@@ -34,8 +34,20 @@ class Zippyshare:
         else:
             return
 
+    def _logger_warn(self, message):
+        if self._verbose:
+            print('[WARN] %s' % (message))
+        else:
+            return
+
+    def _logger_error(self, message):
+        if self._verbose:
+            print('[ERROR] %s' % (message))
+        else:
+            return
+
     def _get_url(self, u, r: requests.Request):
-        self._logger_info('Getting Download URL')
+        self._logger_info('Getting Download URL from "%s"' % (u))
         # Getting download button javascript code
         parser = BeautifulSoup(r.text, 'html.parser')
         for script in parser.find_all('script'):
@@ -68,7 +80,7 @@ class Zippyshare:
         scrapped = scrapped_init[:endpos_init]
         element_value = scrapped.replace('document.getElementById(\'dlbutton\').href = ', '')
         url_download_init = getStartandEndvalue(element_value, '"')
-        uncompiled_number = getStartandEndvalue(element_value, '(', ')').replace('%b', '')
+        uncompiled_number = getStartandEndvalue(element_value, '(', ')')
         
         # Finding Random Number variable a in scrapped_script
         variables = io.StringIO(scrapped_script).readlines()
@@ -96,15 +108,9 @@ class Zippyshare:
         # then replace the name variable with value variable
         # in uncompiled_number
         if omg != 'f':
-            if 'a' in uncompiled_number:
-                random_number = uncompiled_number.replace('a', str(math.ceil(int(a)/3)))
-            else:
-                random_number = uncompiled_number.replace('b', str(math.ceil(int(b)/3)))
+            random_number = uncompiled_number.replace('a', str(math.ceil(int(a)/3))).replace('b', b)
         else:
-            if 'a' in uncompiled_number:
-                random_number = uncompiled_number.replace('a', str(math.floor(int(a)/3)))
-            else:
-                random_number = uncompiled_number.replace('a', str(math.floor(int(a)/3)))
+            random_number = uncompiled_number.replace('a', str(math.floor(int(a)/3))).replace('b', b)
 
         # Now using self.evaluate() to safely do math calculations
         url_number = str(self.evaluate(random_number))
@@ -137,12 +143,18 @@ class Zippyshare:
             }
 
     def _request_get(self, url):
-        self._logger_info('Fetching URL')
+        self._logger_info('Fetching URL "%s"' % (url))
         return requests.get(url)
 
     def _extract_info(self, url, download=True):
-        check_valid_zippyshare_url(url)
+        try:
+            check_valid_zippyshare_url(url)
+        except InvalidURL as e:
+            self._logger_error(str(e))
+            raise e
         r = self._request_get(url)
+        if r.status_code != 200:
+            self._logger_error('Zippyshare send %s code' % (r.status_code))
         info = self._get_info(url, r)
         if download:
             self._logger_info('Downloading "%s"' % (info['name_file']))
@@ -153,7 +165,14 @@ class Zippyshare:
         
     def _download(self, urls):
         for url in urls:
+            try:
+                check_valid_zippyshare_url(url)
+            except InvalidURL as e:
+                self._logger_error(str(e))
+                raise e
             r = self._request_get(url)
+            if r.status_code != 200:
+                self._logger_error('Zippyshare send %s code' % (r.status_code))
             info = self._get_info(url, r)
             dl(info['download_url'], info['name_file'], progressbar=self._progress_bar, verbose=self._verbose, replace=self._replace)
 
