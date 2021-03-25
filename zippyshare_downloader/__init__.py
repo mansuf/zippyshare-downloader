@@ -104,9 +104,6 @@ class Zippyshare:
         if b is None:
             raise ParserError('variable b in download button javascript cannot be found')
 
-        # Determine if variable a or b is used 
-        # then replace the name variable with value variable
-        # in uncompiled_number
         if omg != 'f':
             random_number = uncompiled_number.replace('a', str(math.ceil(int(a)/3))).replace('b', b)
         else:
