@@ -7,7 +7,7 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
-__VERSION__ = 'v0.0.15'
+__VERSION__ = 'v0.0.16'
 
 from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
@@ -115,6 +115,18 @@ class Zippyshare:
         continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
         return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
+    # Fix https://github.com/mansuf/zippyshare-downloader/issues/4
+    def _finalization_info(self, info):
+        if '<img alt="file name" src="/fileName?key' in info['name_file']:
+            self._logger_warn('Filename is in image not in text, running additional fetch...')
+            r = requests.get(info['download_url'], stream=True)
+            new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
+            info['name_file'] = new_namefile
+            return info
+        else:
+            return info
+
+
     def _get_info(self, u, r: requests.Request):
         self._logger_info('Parsing info')
         if 'File has expired and does not exist anymore on this server' in r.text:
@@ -132,12 +144,12 @@ class Zippyshare:
             # Name file
             elif str_element.startswith('<font style="line-height:20px; font-size: 14px;">'):
                 list_infos.append(element)
-        return {
+        return self._finalization_info({
                 'name_file': list_infos[0].decode_contents(),
                 'size': list_infos[1].decode_contents(),
                 'date_upload': list_infos[2].decode_contents(),
                 'download_url': self._get_url(u, r)
-            }
+            })
 
     def _request_get(self, url):
         self._logger_info('Fetching URL "%s"' % (url))
