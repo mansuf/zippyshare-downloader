@@ -12,7 +12,6 @@ pip install zippyshare-downloader
 
 ```bash
 
-
 # by default, verbose is disabled
 zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose
 zippyshare-downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose
@@ -21,6 +20,15 @@ zippyshare-downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verb
 python3 -m zippyshare_downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose
 
 # Output: {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
+
+# if you want to get information from this app
+# BUT, you don't wanna download it
+# you can use --no-download option
+
+# the output is json format
+zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --no-download
+
+# Output: {"name_file": ..., "size": ..., "date_upload": ..., "download_url": ...}
 
 # New in v0.0.17 
 # --progress-bar option is removed
@@ -37,6 +45,12 @@ zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --silent --ver
 
 # Output: still no output...
 
+# but, if you give --silent option and --no-download together
+# --silent option will be ignored
+zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --no-download --silent
+
+# Output: {"name_file": ..., "size": ..., "date_upload": ..., "download_url": ...}
+
 # New in v0.0.17
 # now you can download zippyshare files from a file that containing zippyshare urls
 # but, if given file doesn't exist
@@ -50,12 +64,21 @@ zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --silent --ver
 # this will download all urls in urls.txt
 zippyshare-dl "urls.txt" --verbose
 
-# but you provided invalid path to your .txt file
+# But, if you provided invalid path to your .txt file
 # the app will see filename as url
-
 zippyshare-dl "not-exist-lol/urls.txt" --verbose
 
 # Output: zippyshare_downloader.errors.InvalidURL: "not-exist-lol/urls.txt" is not a zippyshare url
+
+# if you give --no-download option to the app
+# while using file containing zippyshare urls
+# the app will fetch all information stored in given file
+# without downloading it.
+
+# the output is json format
+zippyshare-dl "urls.txt" --no-download
+
+# Output: {"urls": [...]}
 
 ```
 
