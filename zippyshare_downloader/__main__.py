@@ -27,11 +27,10 @@ def main():
     parser.add_argument('--no-download', action='store_true', help='No download file')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose')
     parser.add_argument('--replace', action='store_true', help='Replace file if exist')
-    parser.add_argument('--progress-bar', action='store_true', help='Enable progress bar')
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     z = Zippyshare(
-        progress_bar=args.progress_bar,
+        progress_bar=True,
         replace=args.replace,
         verbose=args.verbose
     )
