@@ -11,15 +11,17 @@ def check_valid_zippyshare_url(url):
     else:
         return cvzu(url)
 
-def extract_multi_urls(z, urls, download=True):
+def extract_multi_urls(z, urls, download=True, silent=True):
     us = []
     result = {'urls': us}
     for u in urls:
         us.append(z.extract_info(u, download=download))
-    print(json.dumps(result))
+    if not silent:
+        print(json.dumps(result))
 
-def extract_single_urls(z, url, download=True):
-    print(json.dumps(z.extract_info(url, download=download)))
+def extract_single_urls(z, url, download=True, silent=True):
+    if not silent:
+        print(json.dumps(z.extract_info(url, download=download)))
 
 def main():
     parser = argparse.ArgumentParser(description='Download file from zippyshare directly from python')
@@ -27,6 +29,7 @@ def main():
     parser.add_argument('--no-download', action='store_true', help='No download file')
     parser.add_argument('--verbose', action='store_true', help='Enable verbose')
     parser.add_argument('--replace', action='store_true', help='Replace file if exist')
+    parser.add_argument('--silent', action='store_true', help='No output')
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     z = Zippyshare(
@@ -36,14 +39,14 @@ def main():
     )
     if isinstance(urls, list):
         if args.no_download:            
-            extract_multi_urls(z, urls, download=False)
+            extract_multi_urls(z, urls, download=False, silent=args.silent)
         else:
-            extract_multi_urls(z, urls, download=True)
+            extract_multi_urls(z, urls, download=True, silent=args.silent)
     else:
         if args.no_download:
-            extract_single_urls(z, urls, download=False)
+            extract_single_urls(z, urls, download=False, silent=args.silent)
         else:
-            extract_single_urls(z, urls, download=True)
+            extract_single_urls(z, urls, download=True, silent=args.silent)
 
 if __name__ == "__main__":
     main()
