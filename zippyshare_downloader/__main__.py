@@ -19,7 +19,7 @@ def extract_multi_urls(z, urls, download=True, silent=True):
     if not silent and download is True:
         print(json.dumps(result))
     elif download is False:
-        print(result)
+        print(json.dumps(result))
 
 def extract_single_urls(z, url, download=True, silent=True):
     result = json.dumps(z.extract_info(url, download=download))
@@ -37,10 +37,12 @@ def main():
     parser.add_argument('--silent', action='store_true', help='No output')
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
+    args.progress_bar = True
     if args.silent == True:
         args.verbose = False
+        args.progress_bar = False
     z = Zippyshare(
-        progress_bar=True,
+        progress_bar=args.progress_bar,
         replace=args.replace,
         verbose=args.verbose
     )
