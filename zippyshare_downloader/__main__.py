@@ -20,8 +20,9 @@ def extract_multi_urls(z, urls, download=True, silent=True):
         print(json.dumps(result))
 
 def extract_single_urls(z, url, download=True, silent=True):
+    result = json.dumps(z.extract_info(url, download=download))
     if not silent:
-        print(json.dumps(z.extract_info(url, download=download)))
+        print(result)
 
 def main():
     parser = argparse.ArgumentParser(description='Download file from zippyshare directly from python')
