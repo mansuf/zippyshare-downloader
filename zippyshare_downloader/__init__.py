@@ -115,10 +115,18 @@ class Zippyshare:
         continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
         return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
-    # Fix https://github.com/mansuf/zippyshare-downloader/issues/4
     def _finalization_info(self, info):
+        # Fix https://github.com/mansuf/zippyshare-downloader/issues/4
         if '<img alt="file name" src="/fileName?key' in info['name_file']:
             self._logger_warn('Filename is in image not in text, running additional fetch...')
+            r = requests.get(info['download_url'], stream=True)
+            new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
+            info['name_file'] = new_namefile
+            r.close()
+            return info
+        # Fix https://github.com/mansuf/zippyshare-downloader/issues/5
+        elif len(info['name_file']) > 70:
+            self._logger_warn('Filename is too long, running additional fetch...')
             r = requests.get(info['download_url'], stream=True)
             new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
             info['name_file'] = new_namefile
@@ -168,7 +176,13 @@ class Zippyshare:
         info = self._get_info(url, r)
         if download:
             self._logger_info('Downloading "%s"' % (info['name_file']))
-            dl(info['download_url'], info['name_file'], progressbar=self._progress_bar, verbose=self._verbose, replace=self._replace)
+            dl(
+                info['download_url'],
+                info['name_file'],
+                progressbar=self._progress_bar,
+                verbose=self._verbose,
+                replace=self._replace
+            )
             return info
         else:
             return info
@@ -184,7 +198,13 @@ class Zippyshare:
             if r.status_code != 200:
                 self._logger_error('Zippyshare send %s code' % (r.status_code))
             info = self._get_info(url, r)
-            dl(info['download_url'], info['name_file'], progressbar=self._progress_bar, verbose=self._verbose, replace=self._replace)
+            dl(
+                info['download_url'],
+                info['name_file'],
+                progressbar=self._progress_bar,
+                verbose=self._verbose,
+                replace=self._replace
+            )
 
     def download(self, urls: list or tuple):
         if isinstance(urls, list) or isinstance(urls, tuple):
