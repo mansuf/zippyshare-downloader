@@ -11,7 +11,7 @@ setup(
   packages = ['zippyshare_downloader'],   
   version = VERSION,
   license='MIT',
-  description = 'Download file from zippyshare directly from python',
+  description = 'Download file from zippyshare directly with python',
   long_description= README,
   long_description_content_type= 'text/markdown',
   author = 'Rahman Yusuf',              
