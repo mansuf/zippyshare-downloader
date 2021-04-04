@@ -16,12 +16,16 @@ def extract_multi_urls(z, urls, download=True, silent=True):
     result = {'urls': us}
     for u in urls:
         us.append(z.extract_info(u, download=download))
-    if not silent:
+    if not silent and download is True:
         print(json.dumps(result))
+    elif download is False:
+        print(result)
 
 def extract_single_urls(z, url, download=True, silent=True):
     result = json.dumps(z.extract_info(url, download=download))
-    if not silent:
+    if not silent and download is True:
+        print(result)
+    elif download is False:
         print(result)
 
 def main():
