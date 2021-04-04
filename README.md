@@ -1,9 +1,10 @@
-## zippyshare-downloader
+# zippyshare-downloader
 
 Download file from zippyshare directly from python
 
 ### Installation
-```
+
+```bash
 pip install zippyshare-downloader
 ```
 
@@ -11,14 +12,51 @@ pip install zippyshare-downloader
 
 ```bash
 
-zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose --progress-bar
 
-zippyshare-downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose --progress-bar
+# by default, verbose is disabled
+zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose
+zippyshare-downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose
 
 # do this if "zippyshare-dl" or "zippyshare-downloader" didn't work
-python3 -m zippyshare_downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose --progress-bar
+python3 -m zippyshare_downloader "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --verbose
 
 # Output: {'name_file': ..., 'size': ..., 'date_upload': ..., 'download_url': ...}
+
+# New in v0.0.17 
+# --progress-bar option is removed
+# progress bar will be enabled by default
+# there is --silent option to remove all output from the app
+# but, if you give --silent and --verbose together
+# the --verbose option will be ignored
+
+zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --silent
+
+# Output: There is no output...
+
+zippyshare-dl "https://www54.zippyshare.com/v/bbvLtnKG/file.html" --silent --verbose
+
+# Output: still no output...
+
+# New in v0.0.17
+# now you can download zippyshare files from a file that containing zippyshare urls
+# but, if given file doesn't exist
+# the app will look given file as url.
+# More explanation in below
+
+# let say you have a .txt file containing zippyshare urls
+# and you give filename into the app
+# the app will download all of it
+
+# this will download all urls in urls.txt
+zippyshare-dl "urls.txt" --verbose
+
+# but you provided invalid path to your .txt file
+# the app will see filename as url
+
+zippyshare-dl "not-exist-lol/urls.txt" --verbose
+
+# Output: zippyshare_downloader.errors.InvalidURL: "not-exist-lol/urls.txt" is not a zippyshare url
+
 ```
 
 
