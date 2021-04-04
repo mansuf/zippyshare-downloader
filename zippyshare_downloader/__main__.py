@@ -1,4 +1,5 @@
 import argparse
+import json
 from zippyshare_downloader import Zippyshare
 from zippyshare_downloader.utils import check_valid_zippyshare_url
 
@@ -16,9 +17,9 @@ def main():
         verbose=args.verbose
     )
     if args.no_download:
-        print(z.extract_info(args.ZIPPYSHARE_URL, download=False))
+        print(json.dumps(z.extract_info(args.ZIPPYSHARE_URL, download=False)))
     else:
-        print(z.extract_info(args.ZIPPYSHARE_URL, download=True))
+        print(json.dumps(z.extract_info(args.ZIPPYSHARE_URL, download=True)))
 
 if __name__ == "__main__":
     main()
