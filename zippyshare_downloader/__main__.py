@@ -33,6 +33,8 @@ def main():
     parser.add_argument('--silent', action='store_true', help='No output')
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
+    if args.silent == True:
+        args.verbose = False
     z = Zippyshare(
         progress_bar=True,
         replace=args.replace,
