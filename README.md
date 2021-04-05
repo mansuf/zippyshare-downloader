@@ -8,6 +8,16 @@ Download file from zippyshare directly from python
 pip install zippyshare-downloader
 ```
 
+### Command Line Interface (CLI) Options
+
+```
+ZIPPYSHARE_URL or FILE      Zippyshare URL or file containing zippyshare urls
+--no-download               No download file
+--verbose                   Enable verbose
+--replace                   Replace file if exist
+--silent                    No output
+```
+
 ### Command Line Interface (CLI) Usage
 
 ```bash
