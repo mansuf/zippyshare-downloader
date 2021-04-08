@@ -16,7 +16,9 @@ ZIPPYSHARE_URL or FILE      Zippyshare URL or file containing zippyshare urls
 --verbose                   Enable verbose
 --replace                   Replace file if exist
 --silent                    No output
+
 # New in v0.0.18
+
 --output-folder             Store downloaded file in given folder
 --filename                  Rewrite filename. will be ignored if using multiple zippyshare urls
 ```
