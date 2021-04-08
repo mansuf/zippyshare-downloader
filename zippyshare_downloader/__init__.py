@@ -7,7 +7,7 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
-__VERSION__ = 'v0.0.16'
+__VERSION__ = 'v0.0.18'
 
 from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
@@ -16,6 +16,7 @@ from .utils import check_valid_zippyshare_url
 from .errors import ParserError, InvalidURL
 import requests
 import math
+import os
 import io
 
 class Zippyshare:
@@ -164,7 +165,7 @@ class Zippyshare:
         self._logger_info('Fetching URL "%s"' % (url))
         return requests.get(url)
 
-    def _extract_info(self, url, download=True):
+    def _extract_info(self, url, download=True, folder=None, custom_filename=None):
         try:
             check_valid_zippyshare_url(url)
         except InvalidURL as e:
@@ -176,9 +177,18 @@ class Zippyshare:
         info = self._get_info(url, r)
         if download:
             self._logger_info('Downloading "%s"' % (info['name_file']))
+            if folder is not None and isinstance(folder, str):
+                if custom_filename is not None and isinstance(custom_filename, str):
+                    self._logger_info('Using custom filename "%s"' % (custom_filename))
+                    path = os.path.join(os.getcwd(), folder, custom_filename)
+                else:
+                    path = os.path.join(os.getcwd(), folder, info['name_file'])
+            else:
+                path = info['name_file']
+            self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
             dl(
                 info['download_url'],
-                info['name_file'],
+                path,
                 progressbar=self._progress_bar,
                 verbose=self._verbose,
                 replace=self._replace
@@ -213,8 +223,13 @@ class Zippyshare:
             raise InvalidURL('urls expecting list or tuple type, got %s' % (type(urls)))
         self._download(urls)
 
-    def extract_info(self, url: str, download=True):
-        return self._extract_info(url, download=download)
+    def extract_info(self, url: str, download=True, folder=None, custom_filename=None):
+        return self._extract_info(
+            url,
+            download=download,
+            folder=folder,
+            custom_filename=custom_filename
+        )
 
     # Credit for the evaluate() method: Leodanis Pozo Ramos  https://realpython.com/python-eval-function/
     def evaluate(self, expression):
