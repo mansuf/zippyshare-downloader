@@ -36,7 +36,7 @@ def main():
     parser.add_argument('--replace', action='store_true', help='Replace file if exist')
     parser.add_argument('--silent', action='store_true', help='No output')
     parser.add_argument('--output-folder', help='Store downloaded file in given folder', metavar='OUTPUT_FOLDER')
-    parser.add_argument('--filename', help='Rewrite filename. will be ignored if using file containing zippyshare urls')
+    parser.add_argument('--filename', help='Rewrite filename. will be ignored if using multiple zippyshare urls')
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     args.progress_bar = True
