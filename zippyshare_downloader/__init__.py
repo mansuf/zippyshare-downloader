@@ -115,23 +115,23 @@ class Zippyshare:
         continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
         return u[:u.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
+    def _get_absolute_filename(self, info):
+        r = requests.get(info['download_url'], stream=True)
+        new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
+        info['name_file'] = new_namefile
+        r.close()
+        return info
+
     def _finalization_info(self, info):
         # Fix https://github.com/mansuf/zippyshare-downloader/issues/4
         if '<img alt="file name" src="/fileName?key' in info['name_file']:
             self._logger_warn('Filename is in image not in text, running additional fetch...')
-            r = requests.get(info['download_url'], stream=True)
-            new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
-            info['name_file'] = new_namefile
-            r.close()
-            return info
+            return self._get_absolute_filename(info)
+
         # Fix https://github.com/mansuf/zippyshare-downloader/issues/5
         elif len(info['name_file']) > 70:
             self._logger_warn('Filename is too long, running additional fetch...')
-            r = requests.get(info['download_url'], stream=True)
-            new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
-            info['name_file'] = new_namefile
-            r.close()
-            return info
+            return self._get_absolute_filename(info)
         else:
             return info
 
