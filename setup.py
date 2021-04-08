@@ -1,10 +1,13 @@
 import pathlib
 from setuptools import setup
-
-VERSION = 'v0.0.17'
+import re
 
 HERE = pathlib.Path(__file__).parent
 README = (HERE / "README.md").read_text()
+
+# Find version without importing it
+REGEX_VERSION = r'v[0-9]{1}.[0-9]{1}.[0-9]{1,3}'
+VERSION = re.findall(REGEX_VERSION, (HERE / "zippyshare_downloader/__init__.py").read_text())[0]
 
 setup(
   name = 'zippyshare-downloader',         
