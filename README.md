@@ -16,6 +16,8 @@ ZIPPYSHARE_URL or FILE      Zippyshare URL or file containing zippyshare urls
 --verbose                   Enable verbose
 --replace                   Replace file if exist
 --silent                    No output
+--output-folder             Store downloaded file in given folder
+--filename                  Rewrite filename. will be ignored if using multiple zippyshare urls
 ```
 
 ### Command Line Interface (CLI) Usage
@@ -90,12 +92,42 @@ zippyshare-dl "urls.txt" --no-download
 
 # Output: {"urls": [...]}
 
+# New in v0.0.18
+# added --output-folder and --filename options
+
+# --output-folder is to store downloaded file in given folder
+# example:
+
+# this will create YES folder, download the file and put in YES folder
+zippyshare-dl "give zippyshare url here" --output-folder "YES"
+
+# --filename is for rewrite filename, will be ignored if using multiple zippyshare urls
+# example:
+
+# this will download the file and rename it to MEMES.mp4
+zippyshare-dl "give zippyshare url here" --filename "MEMES.mp4"
+
+# You can combine both options for single zippyshare url.
+
+# this will create YES folder, download the file and put in YES folder
+# and rename it to MEMES.mp4.
+zippyshare-dl "give zippyshare url here" --filename "MEMES.mp4" --output-folder "YES"
+
+# BUT, you cannot combine both options for multiple zippyshare urls
+# the --filename option will be ignored
+# for example:
+
+
+# this will download all files stored in zippyshare-urls.txt and put in to YES folder
+# and, not rename all files into MEMES.mp4
+zippyshare-dl "zippyshare-urls.txt" --filename "MEMES.mp4" --output-folder "YES"
+
 ```
 
 
 ### Embedding Usage
 
-**Use zippyshare-downloader module in your python script**
+**Use zippyshare-downloader in your python script**
 
 ```python
 
@@ -138,6 +170,23 @@ URLS = [
 ]
 
 z.download(URLS)
+
+# New in v0.0.18 
+# added `folder` and `custom_filename` arguments to
+# Zippyshare.extract_info()
+# and
+# added `folder` argument to
+# Zippyshare.download()
+# `folder` argument is for store downloaded file in given folder
+# `custom_filename` argument is for rewrite filename, will be ignored if using file containing zippyshare urls.
+
+# Example usage on Zippyshare.extract_info()
+# This will download zippyshare file to YEET folder and rename it to MEMES.mp4
+info = z.extract_info('give zippyshare url here', download=True, folder='YEET', custom_filename='MEMES.mp4')
+
+# Example usage on Zippyshare.download()
+# This will download all files in URLS to YEET folder
+z.download(URLS, folder='YEET')
 
 ```
 
