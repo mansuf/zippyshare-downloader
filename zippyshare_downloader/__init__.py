@@ -197,7 +197,7 @@ class Zippyshare:
         else:
             return info
         
-    def _download(self, urls):
+    def _download(self, urls, folder=None):
         for url in urls:
             try:
                 check_valid_zippyshare_url(url)
@@ -208,20 +208,26 @@ class Zippyshare:
             if r.status_code != 200:
                 self._logger_error('Zippyshare send %s code' % (r.status_code))
             info = self._get_info(url, r)
+            self._logger_info('Downloading "%s"' % (info['name_file']))
+            if folder is not None and isinstance(folder, str):
+                path = os.path.join(os.getcwd(), folder, info['name_file'])
+            else:
+                path = info['name_file']
+            self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
             dl(
                 info['download_url'],
-                info['name_file'],
+                path,
                 progressbar=self._progress_bar,
                 verbose=self._verbose,
                 replace=self._replace
             )
 
-    def download(self, urls: list or tuple):
+    def download(self, urls: list or tuple, folder=None):
         if isinstance(urls, list) or isinstance(urls, tuple):
             pass
         else:
             raise InvalidURL('urls expecting list or tuple type, got %s' % (type(urls)))
-        self._download(urls)
+        self._download(urls, folder=folder)
 
     def extract_info(self, url: str, download=True, folder=None, custom_filename=None):
         return self._extract_info(
