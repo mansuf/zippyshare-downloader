@@ -77,6 +77,35 @@ def pattern1(body_string, url):
     continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
     return url[:url.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
+def pattern2(body_string, url):
+    # Getting download button javascript code
+    parser = BeautifulSoup(body_string, 'html.parser')
+    for script in parser.find_all('script'):
+        if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
+            scrapped_script = script.decode_contents()
+            break
+        else:
+            scrapped_script = None
+    if scrapped_script is None:
+        raise ParserError('download button javascript cannot be found')
+
+    # Finding uncompiled Random Number between FileID and Filename
+    # http://www.zippyshare.com/d/{FileID}/uncompiled_number/{Filename}
+    startpos_init = scrapped_script.find('document.getElementById(\'dlbutton\').href')
+    scrapped_init = scrapped_script[startpos_init:]
+    endpos_init = scrapped_init.find(';')
+    scrapped = scrapped_init[:endpos_init]
+    element_value = scrapped.replace('document.getElementById(\'dlbutton\').href = ', '')
+    url_download_init = getStartandEndvalue(element_value, '"')
+    random_number = getStartandEndvalue(element_value, '(', ')')
+
+    # Now using self.evaluate() to safely do math calculations
+    url_number = str(evaluate(random_number))
+    continuation_download_url_init = getStartandEndvalue(element_value, '(')
+    continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
+    return url[:url.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
+
 PATTERNS = [
-    pattern1
+    pattern1,
+    pattern2
 ]
