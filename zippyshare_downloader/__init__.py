@@ -60,7 +60,7 @@ class Zippyshare:
     def _get_absolute_filename(self, info):
         r = requests.get(info['download_url'], stream=True)
         new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
-        info['name_file'] = new_namefile
+        info['name_file'] = urllib.parse.unquote(new_namefile)
         r.close()
         return info
 
