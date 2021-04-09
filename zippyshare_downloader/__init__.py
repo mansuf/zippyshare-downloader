@@ -82,6 +82,8 @@ class Zippyshare:
         self._logger_info('Parsing info')
         if 'File has expired and does not exist anymore on this server' in r.text:
             raise FileNotFoundError('File has expired and does not exist anymore')
+        elif 'File does not exist on this server' in r.text:
+            raise FileNotFoundError('File does not exist on this server')
         parser = BeautifulSoup(r.text, 'html.parser')
         list_infos = []
         for element in parser.find_all('font'):
