@@ -7,7 +7,7 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
-__VERSION__ = 'v0.0.18'
+__VERSION__ = 'v0.0.19'
 
 from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
