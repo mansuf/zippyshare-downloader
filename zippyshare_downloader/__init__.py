@@ -16,9 +16,7 @@ from .utils import check_valid_zippyshare_url
 from .errors import ParserError, InvalidURL
 from .patterns import PATTERNS
 import requests
-import math
 import os
-import io
 import urllib.parse
 
 class Zippyshare:
