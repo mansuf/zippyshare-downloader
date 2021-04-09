@@ -20,9 +20,6 @@ import os
 import io
 
 class Zippyshare:
-    ALLOWED_NAMES = {
-        k: v for k, v in math.__dict__.items() if not k.startswith("__")
-    }
 
     def __init__(self, verbose=True, progress_bar=True, replace=True):
         self._verbose = verbose
@@ -178,6 +175,7 @@ class Zippyshare:
         if download:
             self._logger_info('Downloading "%s"' % (info['name_file']))
             if folder is not None and isinstance(folder, str):
+                self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
                 if custom_filename is not None and isinstance(custom_filename, str):
                     self._logger_info('Using custom filename "%s"' % (custom_filename))
                     path = os.path.join(os.getcwd(), folder, custom_filename)
@@ -185,7 +183,6 @@ class Zippyshare:
                     path = os.path.join(os.getcwd(), folder, info['name_file'])
             else:
                 path = info['name_file']
-            self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
             dl(
                 info['download_url'],
                 path,
@@ -210,10 +207,10 @@ class Zippyshare:
             info = self._get_info(url, r)
             self._logger_info('Downloading "%s"' % (info['name_file']))
             if folder is not None and isinstance(folder, str):
+                self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
                 path = os.path.join(os.getcwd(), folder, info['name_file'])
             else:
                 path = info['name_file']
-            self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
             dl(
                 info['download_url'],
                 path,
@@ -237,17 +234,4 @@ class Zippyshare:
             custom_filename=custom_filename
         )
 
-    # Credit for the evaluate() method: Leodanis Pozo Ramos  https://realpython.com/python-eval-function/
-    def evaluate(self, expression):
-        """Evaluate a math expression."""
-
-        # Compile the expression
-        code = compile(expression, "<string>", "eval")
-
-        # Validate allowed names
-        for name in code.co_names:
-            if name not in self.ALLOWED_NAMES:
-                    raise NameError(f"The use of '{name}' is not allowed. Expression used: %s" % (expression))
-
-        return eval(code, {"__builtins__": {}}, self.ALLOWED_NAMES)
 
