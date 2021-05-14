@@ -196,7 +196,7 @@ z.download(URLS, folder='YEET')
 ### Minimum Python version
 
 ```
-3.x
+3.5.x
 ```
 
 ### FAQ
