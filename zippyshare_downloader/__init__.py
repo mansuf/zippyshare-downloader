@@ -7,13 +7,12 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
-__VERSION__ = 'v0.0.19'
+__VERSION__ = 'v0.0.20'
 
-from zippyshare_downloader.utils import getStartandEndvalue
 from bs4 import BeautifulSoup
 from download import download as dl
 from .utils import check_valid_zippyshare_url
-from .errors import ParserError, InvalidURL
+from .errors import ParserError, InvalidURL, FileExpired
 from .patterns import PATTERNS
 import requests
 import os
@@ -79,7 +78,7 @@ class Zippyshare:
     def _get_info(self, u, r: requests.Request):
         self._logger_info('Parsing info')
         if 'File has expired and does not exist anymore on this server' in r.text:
-            raise FileNotFoundError('File has expired and does not exist anymore')
+            raise FileExpired('File has expired and does not exist anymore')
         elif 'File does not exist on this server' in r.text:
             raise FileNotFoundError('File does not exist on this server')
         parser = BeautifulSoup(r.text, 'html.parser')
@@ -104,29 +103,43 @@ class Zippyshare:
 
     def _request_get(self, url):
         self._logger_info('Fetching URL "%s"' % (url))
-        return requests.get(url)
+        r = requests.get(url)
+        r.close()
+        return r
 
     def _extract_info(self, url, download=True, folder=None, custom_filename=None):
+        # Check if given url is valid or not
         try:
             check_valid_zippyshare_url(url)
         except InvalidURL as e:
             self._logger_error(str(e))
             raise e
+        
+        # Check if folder is valid or not
+        if folder is not None and not isinstance(folder, str):
+            raise ValueError('folder expecting str, got %s' % (type(folder)))
+        else:
+            _folder = os.path.join(os.getcwd(), folder) if folder else os.getcwd()
+
+        # Check if custom_filename is valid or not
+        if custom_filename is not None and not isinstance(custom_filename, str):
+            raise ValueError('custom_filename expecting str, got %s' % (type(custom_filename)))
+        else:
+            _filename = os.path.join(_folder, custom_filename) if custom_filename else ''
+        
+        # Requesting info to Zippyshare
         r = self._request_get(url)
         if r.status_code != 200:
             self._logger_error('Zippyshare send %s code' % (r.status_code))
         info = self._get_info(url, r)
+
+        # Join the path between folder and custom_filename
+        path = os.path.join(_folder, _filename if _filename else info['name_file'])
+
+        # Start downloading the files, if download is True
         if download:
             self._logger_info('Downloading "%s"' % (info['name_file']))
-            if folder is not None and isinstance(folder, str):
-                self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
-                if custom_filename is not None and isinstance(custom_filename, str):
-                    self._logger_info('Using custom filename "%s"' % (custom_filename))
-                    path = os.path.join(os.getcwd(), folder, custom_filename)
-                else:
-                    path = os.path.join(os.getcwd(), folder, info['name_file'])
-            else:
-                path = info['name_file']
+            self._logger_info('Using directory "%s"' % (path))
             dl(
                 info['download_url'],
                 path,
@@ -140,21 +153,29 @@ class Zippyshare:
         
     def _download(self, urls, folder=None):
         for url in urls:
+            # Check if given url is valid or not
             try:
                 check_valid_zippyshare_url(url)
             except InvalidURL as e:
                 self._logger_error(str(e))
                 raise e
+
+            # Check if folder is valid or not
+            if folder is not None and not isinstance(folder, str):
+                raise ValueError('folder expecting str, got %s' % (type(folder)))
+            else:
+                _folder = os.path.join(os.getcwd(), folder) if folder else os.getcwd()
+
+            # Requesting info to Zippyshare
             r = self._request_get(url)
             if r.status_code != 200:
                 self._logger_error('Zippyshare send %s code' % (r.status_code))
             info = self._get_info(url, r)
+
+            # Start downloading the files
+            path = os.path.join(_folder, info['name_file'])
             self._logger_info('Downloading "%s"' % (info['name_file']))
-            if folder is not None and isinstance(folder, str):
-                self._logger_info(f'Using directory "{os.path.join(os.getcwd(), folder)}"')
-                path = os.path.join(os.getcwd(), folder, info['name_file'])
-            else:
-                path = info['name_file']
+            self._logger_info('Using directory "%s"' % (path))
             dl(
                 info['download_url'],
                 path,

@@ -1,2 +1,13 @@
 # pycache
 zippyshare_downloader/__pycache__
+
+# Tox related
+zippyshare_downloader.egg-info
+.tox
+
+# vscode configurations
+.vscode
+
+# Internal test related
+test.py
+test-links.txt

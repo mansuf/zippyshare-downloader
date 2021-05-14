@@ -19,7 +19,7 @@ def evaluate(expression):
     # Validate allowed names
     for name in code.co_names:
         if name not in ALLOWED_NAMES:
-                raise NameError(f"The use of '{name}' is not allowed. Expression used: %s" % (expression))
+                raise NameError("The use of '%s' is not allowed. Expression used: %s" % (name, expression))
 
     return eval(code, {"__builtins__": {}}, ALLOWED_NAMES)
 
