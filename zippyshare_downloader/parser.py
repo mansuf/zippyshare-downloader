@@ -85,7 +85,7 @@ class File:
             _filename = self.name
             extra_word = ''
         log.info('Downloading "%s" %s' % (self.name, extra_word))
-        file_path = (Path(os.getcwd()) / (folder if folder else '') / _filename).resolve()
+        file_path = (Path('.') / (folder if folder else '') / _filename)
         download(
             self.download_url,
             file_path,
