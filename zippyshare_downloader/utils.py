@@ -3,7 +3,13 @@
 
 import re
 import math
+import tarfile
+import zipfile
+import logging
+from pathlib import Path
 from .errors import InvalidURL
+
+log = logging.getLogger(__name__)
 
 ALLOWED_NAMES = {
     k: v for k, v in math.__dict__.items() if not k.startswith("__")
@@ -46,3 +52,44 @@ def getStartandEndvalue(value: str, sub: str, second_sub=None):
         return v[:v.find(second_sub)]
     else:
         return v[:v.find(sub)]
+
+def extract_archived_file(file) -> None:
+    """Extract all files from supported archive file (zip and tar)."""
+    # Extracting tar files
+    log.debug('Opening "%s" in tar archive format' % file)
+    try:
+        tar = tarfile.open(file, 'r')
+    except tarfile.ReadError as e:
+        log.debug('Failed to open "%s" in tar format, %s: %s' % (
+            file,
+            e.__class__.__name__,
+            str(e)
+        ))
+        pass
+    else:
+        log.info('Extracting all files in "%s"' % file)
+        tar.extractall(Path(file).parent)
+        tar.close()
+        return
+    # Extracting zip files
+    log.debug('Opening "%s" in zip archive format' % file)
+    is_zip = zipfile.is_zipfile(file)
+    if not is_zip:
+        log.debug('File "%s" is not zip format' % file)
+        return
+    try:
+        zip_file = zipfile.ZipFile(file)
+    except zipfile.BadZipFile as e:
+        log.debug('Failed to open "%s" in zip format, %s: %s' % (
+            file,
+            e.__class__.__name__,
+            str(e)
+        ))
+        pass
+    else:
+        log.info('Extracting all files in "%s"' % file)
+        zip_file.extractall(Path(file).parent)
+        zip_file.close()
+
+    
+    

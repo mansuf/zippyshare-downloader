@@ -3,6 +3,7 @@
 
 import logging
 from typing import List
+from .utils import extract_archived_file
 from .parser import File, get_info, finalization_info
 
 __all__ = (
@@ -38,6 +39,8 @@ def download(*urls, zip=False, unzip=False, **kwargs) -> List[File]:
     -------
     :class:`List[File]`
     """
+    if unzip and zip:
+        raise ValueError("unzip and zip paramaters cannot be True together")
     files = []
     for url in urls:
         info = finalization_info(get_info(url))
@@ -45,7 +48,11 @@ def download(*urls, zip=False, unzip=False, **kwargs) -> List[File]:
         files.append(file)
         if kwargs.get('filename') is not None:
             kwargs.pop('filename')
-        file.download(**kwargs)
+        file_path = file.download(**kwargs)
+        if unzip:
+            extract_archived_file(str(file_path))
+        elif zip:
+            pass
     return files
 
 def extract_info(
@@ -78,5 +85,7 @@ def extract_info(
     info = finalization_info(get_info(url))
     file = File(info)
     if download:
-        file.download(**kwargs)
+        file_path = file.download(**kwargs)
+        if unzip:
+            extract_archived_file(str(file_path))
     return file
