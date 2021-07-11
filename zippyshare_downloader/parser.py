@@ -22,6 +22,12 @@ class File:
     def __init__(self, data) -> None:
         self._data = data
 
+    def __repr__(self) -> str:
+        return '<Zippyshare File name="%s" size="%s">' % (
+            self.name,
+            self.size
+        )
+
     @property
     def name(self) -> str:
         """Return name of the file"""
@@ -170,6 +176,3 @@ def get_info(url) -> Dict[str, str]:
         log.exception('File does not exist on this server')
         raise FileNotFoundError('File does not exist on this server')
     return parse_info(url, r)
-
-def extract_archive_file(file):
-    pass
