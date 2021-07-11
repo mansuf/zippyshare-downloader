@@ -3,9 +3,14 @@
 
 import math
 import io
-from .utils import evaluate, getStartandEndvalue
+import re
 from bs4 import BeautifulSoup
 from .errors import *
+from .utils import evaluate, getStartandEndvalue
+
+__all__ = (
+    'pattern1', 'pattern2', 'PATTERNS'
+)
 
 def pattern1(body_string, url):
     # Getting download button javascript code
@@ -89,21 +94,20 @@ def pattern2(body_string, url):
     if scrapped_script is None:
         raise ParserError('download button javascript cannot be found')
 
-    # Finding uncompiled Random Number between FileID and Filename
-    # http://www.zippyshare.com/d/{FileID}/uncompiled_number/{Filename}
-    startpos_init = scrapped_script.find('document.getElementById(\'dlbutton\').href')
-    scrapped_init = scrapped_script[startpos_init:]
-    endpos_init = scrapped_init.find(';')
-    scrapped = scrapped_init[:endpos_init]
-    element_value = scrapped.replace('document.getElementById(\'dlbutton\').href = ', '')
-    url_download_init = getStartandEndvalue(element_value, '"')
-    random_number = getStartandEndvalue(element_value, '(', ')')
+    # Finding /d/{FileID}
+    file_id = re.compile(r'\/d\/[a-zA-Z]{1,}\/').search(scrapped_script).group()
 
-    # Now using self.evaluate() to safely do math calculations
-    url_number = str(evaluate(random_number))
-    continuation_download_url_init = getStartandEndvalue(element_value, '(')
-    continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
-    return url[:url.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
+    # Finding uncompiled random numbers
+    random_numbers = re.compile(r'\([0-9% +-\/]{1,}\)').search(scrapped_script).group()
+
+    # Finding filename
+    filename_init = re.compile(r'"\/[a-zA-Z0-9-_.~%]{1,}";').search(scrapped_script).group()
+    filename = re.compile(r'[";]').sub('', filename_init)
+
+    # Compile the random numbers
+    url_number = str(evaluate(random_numbers))
+
+    return url[:url.find('.')] + '.zippyshare.com' + file_id + url_number + filename
 
 PATTERNS = [
     pattern1,
