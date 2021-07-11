@@ -1,3 +1,4 @@
+import os
 import re
 import requests
 import logging
@@ -49,7 +50,7 @@ class File:
         replace: bool=False,
         folder: str=None,
         filename: str=None
-    ) -> None:
+    ) -> Path:
         """
         Download this file
         
@@ -66,11 +67,19 @@ class File:
             default to `None`.
         filename: :class:`str`
             Set a replacement filename, default to `None`.
+
+        Return
+        --------
+        :class:`Path` this file downloaded
         """
-        _filename = filename if filename else self.name
-        extra_word = 'as "%s"' % _filename
+        if filename:
+            _filename = filename
+            extra_word = 'as "%s"' % _filename
+        else:
+            _filename = self.name
+            extra_word = ''
         log.info('Downloading "%s" %s' % (self.name, extra_word))
-        file_path = (Path(__name__).parent / (folder if folder else '') / _filename).resolve()
+        file_path = (Path(os.getcwd()) / (folder if folder else '') / _filename).resolve()
         download(
             self.download_url,
             file_path,
@@ -79,6 +88,7 @@ class File:
             verbose=False
         )
         log.info('Successfully downloaded "%s"' % self.name)
+        return file_path
 
 
 def parse_info(url, request) -> Dict[str, str]:
@@ -160,3 +170,6 @@ def get_info(url) -> Dict[str, str]:
         log.exception('File does not exist on this server')
         raise FileNotFoundError('File does not exist on this server')
     return parse_info(url, r)
+
+def extract_archive_file(file):
+    pass
