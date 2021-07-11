@@ -1,11 +1,11 @@
 import re
-from typing import Dict
 import requests
-import aiohttp
-import json
 import logging
 import urllib.parse
 from bs4 import BeautifulSoup
+from typing import Dict
+from download import download
+from pathlib import Path
 from datetime import datetime
 from .patterns import PATTERNS
 from .errors import ParserError, FileExpired
@@ -38,18 +38,47 @@ class File:
         date_format = '%d-%m-%Y %H:%M'
         return datetime.strptime(self._data['date_upload'], date_format)
     
-    def download(self, progress_bar: bool=True, replace: bool=True) -> None:
+    @property
+    def download_url(self) -> str:
+        """Return downloadable url"""
+        return self._data['download_url']
+
+    def download(
+        self,
+        progress_bar: bool=True,
+        replace: bool=False,
+        folder: str=None,
+        filename: str=None
+    ) -> None:
         """
         Download this file
         
         Parameters
         ------------
         progress_bar: :class:`bool`
-            Enable/Disable progress bar
+            Enable/Disable progress bar,
+            default to `True`
         replace: :class:`bool`
-            Replace file if exist.
+            Replace file if exist,
+            default to `False`
+        folder: :class:`str`
+            Set a folder where to store downloaded file,
+            default to `None`.
+        filename: :class:`str`
+            Set a replacement filename, default to `None`.
         """
-        pass
+        _filename = filename if filename else self.name
+        extra_word = 'as "%s"' % _filename
+        log.info('Downloading "%s" %s' % (self.name, extra_word))
+        file_path = (Path(__name__).parent / (folder if folder else '') / _filename).resolve()
+        download(
+            self.download_url,
+            file_path,
+            progressbar=progress_bar,
+            replace=replace,
+            verbose=False
+        )
+        log.info('Successfully downloaded "%s"' % self.name)
 
 
 def parse_info(url, request) -> Dict[str, str]:

@@ -3,7 +3,7 @@
 
 import logging
 from typing import List
-from .parser import File
+from .parser import File, get_info, finalization_info
 
 __all__ = (
     'download', 'extract_info'
@@ -11,7 +11,7 @@ __all__ = (
 
 log = logging.getLogger(__name__)
 
-def download(*urls, zip=False, unzip=False, folder=None) -> List[File]:
+def download(*urls, zip=False, unzip=False, **kwargs) -> List[File]:
     """
     Download multiple zippyshare urls
 
@@ -30,22 +30,29 @@ def download(*urls, zip=False, unzip=False, folder=None) -> List[File]:
         default to `False`.
         NOTE: You can't mix `zip` and `unzip` options together
         with value `True`, it will raise error.
-    folder: :class:`str`
-        Set a folder where to store all downloaded files,
-        default to `None`.
+    **kwargs
+        These parameters will be passed to `File.download()`,
+        except for parameter `filename`.
 
     Return
     -------
     :class:`List[File]`
     """
-    pass
+    files = []
+    for url in urls:
+        info = finalization_info(get_info(url))
+        file = File(info)
+        files.append(file)
+        if kwargs.get('filename') is not None:
+            kwargs.pop('filename')
+        file.download(**kwargs)
+    return files
 
 def extract_info(
     url: str,
     download: bool=True,
     unzip: bool=False,
-    filename: str=None,
-    folder: str=None
+    **kwargs
 ) -> File:
     """
     Extract all informations in Zippyshare url.
@@ -59,13 +66,17 @@ def extract_info(
         default to `True`.
     unzip: :class:`bool`
         Unzip downloaded file once finished
-        (if given file is zip format extract it, otherwise ignore it),
+        (if given file is zip or tar format extract it, otherwise ignore it),
         default to `False`.
-    filename: :class:`str`
-        Rewrite file name if :param:`download` is `True`,
-        default to `None`.
-    folder: :class:`str`
-        Set a folder where to store downloaded file,
-        default to `None`.
+    **kwargs
+        These parameters will be passed to `File.download()`
+
+    Return
+    -------
+    :class:`File`
     """
-    pass
+    info = finalization_info(get_info(url))
+    file = File(info)
+    if download:
+        file.download(**kwargs)
+    return file
