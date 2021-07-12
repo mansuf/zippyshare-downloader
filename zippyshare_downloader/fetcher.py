@@ -155,7 +155,7 @@ async def extract_info_coro(
     file = File(info)
     _loop = loop or asyncio.get_event_loop()
     if download:
-        await _loop.run_in_executor(lambda: process_download(file, kwargs, unzip))
+        await _loop.run_in_executor(None, lambda: process_download(file, kwargs, unzip))
     return file
 
 async def download_coro(
