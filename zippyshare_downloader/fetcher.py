@@ -3,6 +3,7 @@
 
 import asyncio
 import logging
+import os
 import zipfile
 from typing import List
 from pathlib import Path
@@ -50,7 +51,7 @@ def download(
     :class:`List[File]`
     """
     if unzip and zip:
-        raise ValueError("unzip and zip paramaters cannot be True together")
+        raise ValueError("unzip and zip paramaters cannot be set together")
     downloaded_files = {}
     files = []
     for url in urls:
@@ -64,10 +65,18 @@ def download(
         if unzip:
             extract_archived_file(str(file_path))
     if zip:
+        log.info('Zipping all downloaded files')
         path = list(downloaded_files.values())[0]
-        with zipfile.ZipFile((path.parent / zip), 'w') as zip_writer:
+        zip_path = (path.parent / zip)
+        with zipfile.ZipFile(zip_path, 'w') as zip_writer:
             for file, path in downloaded_files.items():
+                log.debug('Writing %s to %s' % (
+                    path,
+                    zip_path
+                ))
                 zip_writer.write(path)
+                os.remove(path)
+        log.info('Successfully zipped all downloaded files')
     return files
 
 def extract_info(
@@ -189,7 +198,7 @@ async def download_coro(
     :class:`List[File]`
     """
     if unzip and zip:
-        raise ValueError("unzip and zip paramaters cannot be True together")
+        raise ValueError("unzip and zip paramaters cannot be set together")
     _loop = loop or asyncio.get_event_loop()
     downloaded_files = {}
     files = []
@@ -199,16 +208,25 @@ async def download_coro(
         files.append(file)
         if kwargs.get('filename') is not None:
             kwargs.pop('filename')
-        def process_download(file, kwargs, unzip):
+        def process_download(downloaded_files, file, kwargs, unzip):
             file_path = file.download(**kwargs)
+            downloaded_files[file] = file_path
             if unzip:
                 extract_archived_file(str(file_path))
-        await _loop.run_in_executor(None, lambda: process_download(file, kwargs, unzip))
+        await _loop.run_in_executor(None, lambda: process_download(downloaded_files, file, kwargs, unzip))
     if zip:
         def process_zip(downloaded_files):
+            log.info('Zipping all downloaded files')
             path = list(downloaded_files.values())[0]
-            with zipfile.ZipFile((path.parent / zip), 'w') as zip_writer:
+            zip_path = (path.parent / zip)
+            with zipfile.ZipFile(zip_path, 'w') as zip_writer:
                 for file, path in downloaded_files.items():
+                    log.debug('Writing %s to %s' % (
+                        path,
+                        zip_path
+                    ))
                     zip_writer.write(path)
+                    os.remove(path)
+            log.info('Successfully zipped all downloaded files')
         await _loop.run_in_executor(None, lambda: process_zip(downloaded_files))
     return files
