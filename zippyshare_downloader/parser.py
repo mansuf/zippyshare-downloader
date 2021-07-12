@@ -1,3 +1,6 @@
+# zippyshare-downloader
+# parser.py
+
 import asyncio
 import json
 import aiohttp
@@ -129,8 +132,12 @@ def parse_info(url, body_html) -> Dict[str, str]:
     for pattern in PATTERNS:
         try:
             download_url = pattern(body_html, url)
-        except Exception:
-            log.debug('%s failed to get download url' % pattern.__name__)
+        except Exception as e:
+            log.debug('%s failed to get download url, %s: %s' % (
+                pattern.__name__,
+                e.__class__.__name__,
+                str(e)
+            ))
             continue
         else:
             log.debug('%s success to get download url' % pattern.__name__)
