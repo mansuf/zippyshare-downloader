@@ -1,10 +1,11 @@
-import os
+import asyncio
+import aiohttp
 import re
 import requests
 import logging
 import urllib.parse
 from bs4 import BeautifulSoup
-from typing import Dict
+from typing import Any, Dict
 from download import download
 from pathlib import Path
 from datetime import datetime
@@ -15,7 +16,7 @@ log = logging.getLogger(__name__)
 
 __all__ = (
     'File', 'get_info', 'parse_info',
-    'finalization_info'
+    'finalization_info', 'get_info_coro'
 )
 
 class File:
@@ -97,11 +98,11 @@ class File:
         return file_path
 
 
-def parse_info(url, request) -> Dict[str, str]:
+def parse_info(url, body_html) -> Dict[str, str]:
     """
     Parse required informations from request Zippyshare url.
     """
-    parser = BeautifulSoup(request.text, 'html.parser')
+    parser = BeautifulSoup(body_html, 'html.parser')
     list_infos = []
     log.debug('Getting Name file, size, date upload.')
     for element in parser.find_all('font'):
@@ -118,7 +119,7 @@ def parse_info(url, request) -> Dict[str, str]:
     log.debug('Getting download url.')
     for pattern in PATTERNS:
         try:
-            download_url = pattern(request.text, url)
+            download_url = pattern(body_html, url)
         except Exception:
             log.debug('%s failed to get download url' % pattern.__name__)
             continue
@@ -157,7 +158,12 @@ def finalization_info(info) -> Dict[str, str]:
         return info
 
 def get_info(url) -> Dict[str, str]:
-    """Get informations in Zippyshare url."""
+    """
+    Get informations in Zippyshare url.
+
+    NOTE: You will have to call function `finalization_info()`
+    to fix incorrect informations (if detected).
+    """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
     r = requests.get(url)
@@ -175,4 +181,39 @@ def get_info(url) -> Dict[str, str]:
     if 'File does not exist on this server' in r.text:
         log.exception('File does not exist on this server')
         raise FileNotFoundError('File does not exist on this server')
-    return parse_info(url, r)
+    return parse_info(url, r.text)
+
+async def get_info_coro(url, loop=None) -> Dict[str, str]:
+    """
+    |coro|
+
+    Get informations in Zippyshare url.
+
+    Unlike `get_info()` when you have to call `finalization_info()` manually
+    to fix incorrect informations.
+    This function automatically called it.
+    """
+    def parse(url, body_html):
+        return finalization_info(parse_info(url, body_html))
+    log.info('Grabbing required informations in %s' % url)
+    log.debug('Establishing connection to Zippyshare.')
+    async with aiohttp.ClientSession() as session:
+        r = await session.get(url)
+        try:
+            r.raise_for_status()
+        except aiohttp.ClientResponseError as e:
+            log.exception('Zippyshare send %s code' % r.status)
+            raise e from None
+        body_html = await r.text()
+        log.debug('Successfully established connection to Zippyshare.')
+        log.debug('Checking if file is not expired')
+        if 'File has expired and does not exist anymore on this server' in body_html:
+            log.exception('File has expired and does not exist anymore')
+            raise FileExpired('File has expired and does not exist anymore')
+        log.debug('Checking if file is exist')
+        if 'File does not exist on this server' in body_html:
+            log.exception('File does not exist on this server')
+            raise FileNotFoundError('File does not exist on this server')
+        _loop = loop or asyncio.get_event_loop()
+        return await _loop.run_in_executor(None, lambda: parse(url, body_html))
+        
