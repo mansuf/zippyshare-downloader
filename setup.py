@@ -34,7 +34,8 @@ setup(
   install_requires=[           
           'requests',
           'bs4',
-          'download'
+          'download',
+          'aiohttp'
       ],
   classifiers=[
     'Development Status :: 5 - Production/Stable',
