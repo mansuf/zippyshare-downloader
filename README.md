@@ -29,34 +29,42 @@ And then run `setup.py`
 python setup.py install
 ```
 
-### Command Line Interface (CLI) Options
+## Simple Usage
 
-```
-ZIPPYSHARE_URL or FILE          Zippyshare URL or file containing zippyshare urls
---no-download                   No download file
---verbose, -v                   Enable verbose
---replace, -r                   Replace file if exist
---silent                        No output
+### Command Line Interface (CLI)
 
-# New in v0.0.18
+```bash
+zippyshare-dl "insert zippyshare url here"
 
---folder FOLDER                 Store downloaded file in given folder
---filename FILENAME             Rewrite filename. will be ignored if using multiple zippyshare urls
+# or
 
-# New in v0.0.21
+zippyshare-downloader "insert zippyshare url here"
 
---zip FILENAME, -z FILENAME     Zip all downloaded files (if using multiple zippyshare urls) once finished, the zip
-                                filename will be taken from this option. 
-                                NOTE: You can't combine --zip and --unzip options, it will throw error.
---unzip, -uz                    Unzip all downloaded files, one by one.
-                                NOTE: You can't combine --zip and --unzip options, it will throw error.
---async                         Run zippyshare-downloader in asynchronous process
-
+# Use this `zippyshare-dl` and `zippyshare-downloader` didn't work
 ```
 
-### Command Line Interface (CLI) Usage
+### Embedding Usage (API)
+Use `zippyshare-downloader` in your python script
 
-### FAQ
+```python
+
+from zippyshare_downloader import extract_info, extract_info_coro
+
+# by default, parameter download is True
+file = extract_info('insert zippyshare url here', download=True)
+
+print(file)
+
+# Output: <Zippyshare File name="..." size="...">
+
+# async version
+async def get_info():
+    file = await extract_info_coro('insert zippyshare url here', download=True)
+    print(file)
+
+```
+
+## FAQ
 
 **Q:** I always getting `NameError: The use of "bla bla" is not allowed`, what should i do ?<br>
 **A:** Zippyshare always change their code, Please update to last version, if your zippyshare-downloader is latest version, then open a issue [here](https://github.com/mansuf/zippyshare-downloader/issues)
