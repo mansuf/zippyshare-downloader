@@ -82,7 +82,7 @@ def main():
     parser.add_argument('--verbose', '-v', action='store_true', help='Enable verbose')
     parser.add_argument('--replace', '-r', action='store_true', help='Replace file if exist')
     parser.add_argument('--silent', '-s', action='store_true', help='No output')
-    parser.add_argument('--folder', help='Store downloaded file in given folder', metavar='OUTPUT_FOLDER')
+    parser.add_argument('--folder', help='Store downloaded file in given folder', metavar='FOLDER')
     parser.add_argument('--filename', help='Set a replacement filename. will be ignored if using multiple zippyshare urls')
     parser.add_argument('--zip', '-z', help='Zip all downloaded files (if using multiple zippyshare urls) once finished, ' \
                         'the zip filename will be taken from this option. NOTE: You can\'t combine --zip ' \
