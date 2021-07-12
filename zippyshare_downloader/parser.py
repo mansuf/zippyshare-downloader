@@ -1,4 +1,5 @@
 import asyncio
+import json
 import aiohttp
 import re
 import requests
@@ -96,6 +97,14 @@ class File:
         )
         log.info('Successfully downloaded "%s"' % self.name)
         return file_path
+
+    def to_JSON(self):
+        """Return all zippyshare informations in JSON"""
+        return json.dumps(self._data.copy())
+    
+    def to_dict(self):
+        """Return all zippyshare informations in dict"""
+        return self._data.copy()
 
 
 def parse_info(url, body_html) -> Dict[str, str]:
