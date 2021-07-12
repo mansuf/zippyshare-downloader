@@ -2,16 +2,31 @@
 
 Download file from zippyshare directly from python
 
-### Installation
+## Minimum Python version
+
+```
+3.5.x
+```
+
+## Installation
+
+### Python Packages Index (PyPI)
 
 ```bash
 pip install zippyshare-downloader
 ```
 
-### Minimum Python version
+### From the source
 
+Clone the repository
 ```
-3.5.x
+git clone https://github.com/mansuf/zippyshare-downloader.git
+cd zippyshare-downloader
+```
+
+And then run `setup.py`
+```
+python setup.py install
 ```
 
 ### Command Line Interface (CLI) Options
