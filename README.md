@@ -8,6 +8,12 @@ Download file from zippyshare directly from python
 pip install zippyshare-downloader
 ```
 
+### Minimum Python version
+
+```
+3.5.x
+```
+
 ### Command Line Interface (CLI) Options
 
 ```
@@ -193,11 +199,7 @@ z.download(URLS, folder='YEET')
 
 ```
 
-### Minimum Python version
 
-```
-3.5.x
-```
 
 ### FAQ
 
