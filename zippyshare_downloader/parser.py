@@ -93,7 +93,7 @@ class File:
         file_path = (Path('.') / (folder if folder else '') / _filename)
         download(
             self.download_url,
-            file_path,
+            str(file_path),
             progressbar=progress_bar,
             replace=replace,
             verbose=False
