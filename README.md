@@ -33,6 +33,8 @@ python setup.py install
 
 ### Command Line Interface (CLI)
 
+Read [here](https://github.com/mansuf/zippyshare-downloader/blob/main/docs/CLI.md) for more informations
+
 ```bash
 zippyshare-dl "insert zippyshare url here"
 
@@ -47,6 +49,8 @@ python -m zippyshare_downloader "insert zippyshare url here"
 
 ### Embedding (API)
 Use `zippyshare-downloader` in your python script
+
+Read [here](https://github.com/mansuf/zippyshare-downloader/blob/main/docs/API.md) for more informations
 
 ```python
 
