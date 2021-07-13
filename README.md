@@ -41,9 +41,11 @@ zippyshare-dl "insert zippyshare url here"
 zippyshare-downloader "insert zippyshare url here"
 
 # Use this `zippyshare-dl` and `zippyshare-downloader` didn't work
+
+python -m zippyshare_downloader "insert zippyshare url here"
 ```
 
-### Embedding Usage (API)
+### Embedding (API)
 Use `zippyshare-downloader` in your python script
 
 ```python
