@@ -42,7 +42,7 @@ zippyshare-dl "insert zippyshare url here"
 
 zippyshare-downloader "insert zippyshare url here"
 
-# Use this `zippyshare-dl` and `zippyshare-downloader` didn't work
+# Use this if `zippyshare-dl` and `zippyshare-downloader` didn't work
 
 python -m zippyshare_downloader "insert zippyshare url here"
 ```
