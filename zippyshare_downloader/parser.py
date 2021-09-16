@@ -79,9 +79,10 @@ class File:
         filename: :class:`str`
             Set a replacement filename, default to `None`.
 
-        Return
+        Returns
         --------
-        :class:`Path` this file downloaded
+        :class:`Path` 
+            Zippyshare file downloaded
         """
         if filename:
             _filename = filename
@@ -201,8 +202,6 @@ def get_info(url) -> Dict[str, str]:
 
 async def get_info_coro(url, loop=None) -> Dict[str, str]:
     """
-    |coro|
-
     Get informations in Zippyshare url.
 
     Unlike `get_info()` when you have to call `finalization_info()` manually

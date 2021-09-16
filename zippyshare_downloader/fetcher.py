@@ -46,9 +46,10 @@ def download(
         These parameters will be passed to `File.download()`,
         except for parameter `filename`.
 
-    Return
+    Returns
     -------
-    :class:`List[File]`
+    List[:class:`File`]
+        a list of Zippyshare files
     """
     if unzip and zip:
         raise ValueError("unzip and zip paramaters cannot be set together")
@@ -102,9 +103,10 @@ def extract_info(
     **kwargs
         These parameters will be passed to `File.download()`
 
-    Return
+    Returns
     -------
     :class:`File`
+        Zippyshare file
     """
     info = finalization_info(get_info(url))
     file = File(info)
@@ -122,8 +124,6 @@ async def extract_info_coro(
     **kwargs
 ) -> File:
     """
-    |coro|
-
     Extract all informations in Zippyshare url.
 
     Parameters
@@ -143,9 +143,10 @@ async def extract_info_coro(
     **kwargs
         These parameters will be passed to `File.download()`
 
-    Return
+    Returns
     -------
     :class:`File`
+        Zippyshare file
     """
     def process_download(file, kwargs, unzip):
         file_path = file.download(**kwargs)
@@ -166,8 +167,6 @@ async def download_coro(
     **kwargs
 ) -> List[File]:
     """
-    |coro|
-
     Download multiple zippyshare urls
 
     Parameters
@@ -193,9 +192,10 @@ async def download_coro(
         These parameters will be passed to `File.download()`,
         except for parameter `filename`.
 
-    Return
+    Returns
     -------
-    :class:`List[File]`
+    List[:class:`File`]
+        a list of Zippyshare files
     """
     if unzip and zip:
         raise ValueError("unzip and zip paramaters cannot be set together")
