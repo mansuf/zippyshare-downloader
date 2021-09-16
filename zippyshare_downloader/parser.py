@@ -158,21 +158,41 @@ def _get_absolute_filename(info):
     r.close()
     return info
 
-def finalization_info(info) -> Dict[str, str]:
+async def _get_absolute_filename_coro(info, session):
+    resp = await session.get(info['download_url'])
+    new_namefile = resp.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
+    info['name_file'] = urllib.parse.unquote(new_namefile)
+    resp.close()
+    return info
+
+async def __dummy_return(info):
+    return info
+
+def finalization_info(info, _async=False, aiohttp_session=None) -> Dict[str, str]:
     """
     Fix if required informations contains invalid info.
     """
+    error = False
     # Fix https://github.com/mansuf/zippyshare-downloader/issues/4
     if '<img alt="file name" src="/fileName?key' in info['name_file']:
         log.warning('Filename is in image not in text, running additional fetch...')
-        return _get_absolute_filename(info)
+        error = True
     
     # Fix https://github.com/mansuf/zippyshare-downloader/issues/5
     elif len(info['name_file']) > 70:
         log.warning('Filename is too long, running additional fetch...')
-        return _get_absolute_filename(info)
+        error = True
+    
+    if error:
+        if _async:
+            return _get_absolute_filename_coro(info, aiohttp_session)
+        else:
+            return _get_absolute_filename(info)
     else:
-        return info
+        if _async:
+            return __dummy_return(info)
+        else:
+            return info
 
 def get_info(url) -> Dict[str, str]:
     """
@@ -208,8 +228,6 @@ async def get_info_coro(url) -> Dict[str, str]:
     to fix incorrect informations.
     This function automatically called it.
     """
-    def parse(url, body_html):
-        return finalization_info(parse_info(url, body_html))
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
     async with aiohttp.ClientSession() as session:
@@ -229,6 +247,5 @@ async def get_info_coro(url) -> Dict[str, str]:
         if 'File does not exist on this server' in body_html:
             log.exception('File does not exist on this server')
             raise FileNotFoundError('File does not exist on this server')
-        loop = asyncio.get_event_loop()
-        return await loop.run_in_executor(None, lambda: parse(url, body_html))
+        return await finalization_info(parse_info(url, body_html), True, session)
         
