@@ -11,6 +11,7 @@ __VERSION__ = 'v0.0.21'
 
 import logging
 from .fetcher import *
+from .parser import *
 
 logging.getLogger(__name__).addHandler(logging.NullHandler())
 
