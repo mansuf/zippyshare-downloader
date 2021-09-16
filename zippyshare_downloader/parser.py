@@ -200,7 +200,7 @@ def get_info(url) -> Dict[str, str]:
         raise FileNotFoundError('File does not exist on this server')
     return parse_info(url, r.text)
 
-async def get_info_coro(url, loop=None) -> Dict[str, str]:
+async def get_info_coro(url) -> Dict[str, str]:
     """
     Get informations in Zippyshare url.
 
@@ -229,6 +229,6 @@ async def get_info_coro(url, loop=None) -> Dict[str, str]:
         if 'File does not exist on this server' in body_html:
             log.exception('File does not exist on this server')
             raise FileNotFoundError('File does not exist on this server')
-        _loop = loop or asyncio.get_event_loop()
-        return await _loop.run_in_executor(None, lambda: parse(url, body_html))
+        loop = asyncio.get_event_loop()
+        return await loop.run_in_executor(None, lambda: parse(url, body_html))
         

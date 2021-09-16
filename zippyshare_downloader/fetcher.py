@@ -17,12 +17,7 @@ __all__ = (
 
 log = logging.getLogger(__name__)
 
-def download(
-    *urls,
-    zip: str=None,
-    unzip: bool=False,
-    **kwargs
-) -> List[File]:
+def download(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
     """
     Download multiple zippyshare urls
 
@@ -80,12 +75,7 @@ def download(
         log.info('Successfully zipped all downloaded files')
     return files
 
-def extract_info(
-    url: str,
-    download: bool=True,
-    unzip: bool=False,
-    **kwargs
-) -> File:
+def extract_info(url: str, download: bool=True, unzip: bool=False, **kwargs) -> File:
     """
     Extract all informations in Zippyshare url.
 
@@ -116,13 +106,7 @@ def extract_info(
             extract_archived_file(str(file_path))
     return file
 
-async def extract_info_coro(
-    url: str,
-    download: bool=True,
-    unzip: bool=False,
-    loop: asyncio.AbstractEventLoop=None,
-    **kwargs
-) -> File:
+async def extract_info_coro(url: str, download: bool=True, unzip: bool=False, **kwargs) -> File:
     """
     Extract all informations in Zippyshare url.
 
@@ -137,9 +121,6 @@ async def extract_info_coro(
         Unzip downloaded file once finished
         (if given file is zip or tar format extract it, otherwise ignore it),
         default to `False`.
-    loop: :class:`asyncio.AbstractEventLoop`
-        Set asyncio event loop,
-        default to `None`.
     **kwargs
         These parameters will be passed to `File.download()`
 
@@ -152,20 +133,14 @@ async def extract_info_coro(
         file_path = file.download(**kwargs)
         if unzip:
             extract_archived_file(str(file_path))
-    info = await get_info_coro(url, loop)
+    info = await get_info_coro(url)
     file = File(info)
-    _loop = loop or asyncio.get_event_loop()
+    loop = asyncio.get_event_loop()
     if download:
-        await _loop.run_in_executor(None, lambda: process_download(file, kwargs, unzip))
+        await loop.run_in_executor(None, lambda: process_download(file, kwargs, unzip))
     return file
 
-async def download_coro(
-    *urls,
-    zip: str=None,
-    unzip: bool=False,
-    loop: asyncio.AbstractEventLoop=None,
-    **kwargs
-) -> List[File]:
+async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
     """
     Download multiple zippyshare urls
 
@@ -185,9 +160,6 @@ async def download_coro(
         default to `False`.
         NOTE: You can't mix `zip` and `unzip` options together
         with value `True`, it will raise error.
-    loop: :class:`asyncio.AbstractEventLoop`
-        Set asyncio event loop,
-        default to `None`.
     **kwargs
         These parameters will be passed to `File.download()`,
         except for parameter `filename`.
@@ -199,7 +171,7 @@ async def download_coro(
     """
     if unzip and zip:
         raise ValueError("unzip and zip paramaters cannot be set together")
-    _loop = loop or asyncio.get_event_loop()
+    loop = asyncio.get_event_loop()
     downloaded_files = {}
     files = []
     for url in urls:
@@ -213,7 +185,7 @@ async def download_coro(
             downloaded_files[file] = file_path
             if unzip:
                 extract_archived_file(str(file_path))
-        await _loop.run_in_executor(None, lambda: process_download(downloaded_files, file, kwargs, unzip))
+        await loop.run_in_executor(None, lambda: process_download(downloaded_files, file, kwargs, unzip))
     if zip:
         def process_zip(downloaded_files):
             log.info('Zipping all downloaded files')
@@ -228,5 +200,5 @@ async def download_coro(
                     zip_writer.write(path)
                     os.remove(path)
             log.info('Successfully zipped all downloaded files')
-        await _loop.run_in_executor(None, lambda: process_zip(downloaded_files))
+        await loop.run_in_executor(None, lambda: process_zip(downloaded_files))
     return files
