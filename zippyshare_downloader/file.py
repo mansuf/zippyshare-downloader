@@ -3,9 +3,14 @@ import logging
 import json
 from pathlib import Path
 from datetime import datetime
+from .downloader import AsyncFileDownloader
 from download import download
 
 log = logging.getLogger(__name__)
+
+__all__ = (
+    'File',
+)
 
 class File:
     def __init__(self, data) -> None:
@@ -83,6 +88,53 @@ class File:
             replace=replace,
             verbose=False
         )
+        log.info('Successfully downloaded "%s"' % self.name)
+        return file_path
+
+    async def download_coro(
+        self,
+        progress_bar: bool=True,
+        replace: bool=False,
+        folder: str=None,
+        filename: str=None
+    ) -> Path:
+        """Same like :meth:`File.download()` but for asynchronous process
+
+        Parameters
+        ------------
+        progress_bar: :class:`bool`
+            Enable/Disable progress bar,
+            default to `True`
+        replace: :class:`bool`
+            Replace file if exist,
+            default to `False`
+        folder: :class:`str`
+            Set a folder where to store downloaded file,
+            default to `None`.
+        filename: :class:`str`
+            Set a replacement filename, default to `None`.
+
+        Returns
+        --------
+        :class:`Path` 
+            Zippyshare file downloaded
+        """
+        if filename:
+            _filename = filename
+            extra_word = 'as "%s"' % _filename
+        else:
+            _filename = self.name
+            extra_word = ''
+        log.info('Downloading "%s" %s' % (self.name, extra_word))
+        file_path = (Path('.') / (folder if folder else '') / _filename)
+        downloader = AsyncFileDownloader(
+            self.download_url,
+            self.name,
+            progress_bar,
+            replace
+        )
+        await downloader.download()
+        await downloader.cleanup()
         log.info('Successfully downloaded "%s"' % self.name)
         return file_path
 

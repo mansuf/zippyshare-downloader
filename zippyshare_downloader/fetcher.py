@@ -10,7 +10,7 @@ import os
 import zipfile
 from typing import List, Dict
 from pathlib import Path
-from .utils import extract_archived_file
+from .utils import extract_archived_file, build_zipping_log, archive_zip
 from .errors import FileExpired
 from .parser import finalization_info, parse_info
 from .file import File
@@ -25,9 +25,6 @@ log = logging.getLogger(__name__)
 def get_info(url) -> Dict[str, str]:
     """
     Get informations in Zippyshare url.
-
-    NOTE: You will have to call function `finalization_info()`
-    to fix incorrect informations (if detected).
     """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
@@ -46,7 +43,7 @@ def get_info(url) -> Dict[str, str]:
     if 'File does not exist on this server' in r.text:
         log.exception('File does not exist on this server')
         raise FileNotFoundError('File does not exist on this server')
-    return parse_info(url, r.text)
+    return finalization_info(parse_info(url, r.text))
 
 async def get_info_coro(url) -> Dict[str, str]:
     """
@@ -202,27 +199,29 @@ async def extract_info_coro(url: str, download: bool=True, unzip: bool=False, **
 
 async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
     """
+    "Coroutine Function"
+
     Download multiple zippyshare urls
 
     Parameters
     -----------
-    *urls
+    *urls: :class:`str`
         Zippyshare urls.
     zip: :class:`str`
         Zip all downloaded files once finished.
         Zip filename will be taken from :param:`zip`,
-        default to `None`.
-        NOTE: You can't mix `zip` and `unzip` options together
+        default to ``None``.
+        NOTE: You can't mix ``zip`` and ``unzip`` options together
         with value `True`, it will raise error.
     unzip: :class:`bool`
         Unzip all downloaded files once finished
         (if given file is zip format extract it, otherwise ignore it),
-        default to `False`.
-        NOTE: You can't mix `zip` and `unzip` options together
+        default to ``False``.
+        NOTE: You can't mix ``zip`` and ``unzip`` options together
         with value `True`, it will raise error.
     **kwargs
-        These parameters will be passed to `File.download()`,
-        except for parameter `filename`.
+        These parameters will be passed to :meth:`File.download()`,
+        except for parameter :param:`filename`.
 
     Returns
     -------
@@ -235,30 +234,19 @@ async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> Li
     downloaded_files = {}
     files = []
     for url in urls:
-        info = await get_info_coro(url, loop=loop)
+        info = await get_info_coro(url)
         file = File(info)
         files.append(file)
         if kwargs.get('filename') is not None:
             kwargs.pop('filename')
-        def process_download(downloaded_files, file, kwargs, unzip):
-            file_path = file.download(**kwargs)
-            downloaded_files[file] = file_path
-            if unzip:
-                extract_archived_file(str(file_path))
-        await loop.run_in_executor(None, lambda: process_download(downloaded_files, file, kwargs, unzip))
+        file_path = await file.download_coro(**kwargs)
+        downloaded_files[file] = file_path
+        def _unzip_worker(file_path):
+            extract_archived_file(str(file_path))
+        if unzip:
+            await loop.run_in_executor(None, lambda: _unzip_worker(file_path))
     if zip:
-        def process_zip(downloaded_files):
-            log.info('Zipping all downloaded files')
-            path = list(downloaded_files.values())[0]
-            zip_path = (path.parent / zip)
-            with zipfile.ZipFile(zip_path, 'w') as zip_writer:
-                for file, path in downloaded_files.items():
-                    log.debug('Writing %s to %s' % (
-                        path,
-                        zip_path
-                    ))
-                    zip_writer.write(path)
-                    os.remove(path)
-            log.info('Successfully zipped all downloaded files')
-        await loop.run_in_executor(None, lambda: process_zip(downloaded_files))
+        log.info(build_zipping_log(downloaded_files, 'Zipping all downloaded files to "%s"' % zip))
+        await loop.run_in_executor(None, lambda: archive_zip(downloaded_files, zip))
+        log.info(build_zipping_log(downloaded_files, 'Successfully zip all downloaded files to "%s"' % zip))
     return files

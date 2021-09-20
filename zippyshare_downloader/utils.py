@@ -2,6 +2,7 @@
 # utils.py
 
 import re
+import os
 import math
 import tarfile
 import zipfile
@@ -91,5 +92,31 @@ def extract_archived_file(file) -> None:
         zip_file.extractall(Path(file).parent)
         zip_file.close()
 
+
+def archive_zip(downloaded_files, name):
+    path = list(downloaded_files.values())[0]
+    zip_path = (path.parent / name)
+    with zipfile.ZipFile(zip_path, 'w') as zip_writer:
+        for file, path in downloaded_files.items():
+            log.debug('Writing "%s" to "%s"' % (
+                path,
+                zip_path
+            ))
+            zip_writer.write(path)
+            os.remove(path)
+
+# Pretty log zipping all downloaded files 
+def build_zipping_log(downloaded_files, word, spacing=4):
+    word = '%s = [\n' % word
+    for file in downloaded_files.keys():
+
+        # Build spacing
+        for _ in range(spacing):
+            word += ' '
+        
+        # Build name file
+        word += f'"{file.name}",\n'
     
-    
+    word += ']'
+    return word
+
