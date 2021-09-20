@@ -2,13 +2,18 @@
 # fetcher.py
 
 import asyncio
+import aiohttp
+import requests
+import asyncio
 import logging
 import os
 import zipfile
-from typing import List
+from typing import List, Dict
 from pathlib import Path
 from .utils import extract_archived_file
-from .parser import File, get_info, finalization_info, get_info_coro
+from .errors import FileExpired
+from .parser import finalization_info, parse_info
+from .file import File
 
 __all__ = (
     'download', 'extract_info',
@@ -16,6 +21,61 @@ __all__ = (
 )
 
 log = logging.getLogger(__name__)
+
+def get_info(url) -> Dict[str, str]:
+    """
+    Get informations in Zippyshare url.
+
+    NOTE: You will have to call function `finalization_info()`
+    to fix incorrect informations (if detected).
+    """
+    log.info('Grabbing required informations in %s' % url)
+    log.debug('Establishing connection to Zippyshare.')
+    r = requests.get(url)
+    try:
+        r.raise_for_status()
+    except requests.HTTPError as e:
+        log.exception('Zippyshare send %s code' % r.status_code)
+        raise e from None
+    log.debug('Successfully established connection to Zippyshare.')
+    log.debug('Checking if file is not expired')
+    if 'File has expired and does not exist anymore on this server' in r.text:
+        log.exception('File has expired and does not exist anymore')
+        raise FileExpired('File has expired and does not exist anymore')
+    log.debug('Checking if file is exist')
+    if 'File does not exist on this server' in r.text:
+        log.exception('File does not exist on this server')
+        raise FileNotFoundError('File does not exist on this server')
+    return parse_info(url, r.text)
+
+async def get_info_coro(url) -> Dict[str, str]:
+    """
+    Get informations in Zippyshare url.
+
+    Unlike `get_info()` when you have to call `finalization_info()` manually
+    to fix incorrect informations.
+    This function automatically called it.
+    """
+    log.info('Grabbing required informations in %s' % url)
+    log.debug('Establishing connection to Zippyshare.')
+    async with aiohttp.ClientSession() as session:
+        r = await session.get(url)
+        try:
+            r.raise_for_status()
+        except aiohttp.ClientResponseError as e:
+            log.exception('Zippyshare send %s code' % r.status)
+            raise e from None
+        body_html = await r.text()
+        log.debug('Successfully established connection to Zippyshare.')
+        log.debug('Checking if file is not expired')
+        if 'File has expired and does not exist anymore on this server' in body_html:
+            log.exception('File has expired and does not exist anymore')
+            raise FileExpired('File has expired and does not exist anymore')
+        log.debug('Checking if file is exist')
+        if 'File does not exist on this server' in body_html:
+            log.exception('File does not exist on this server')
+            raise FileNotFoundError('File does not exist on this server')
+        return await finalization_info(parse_info(url, body_html), True, session)
 
 def download(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
     """
