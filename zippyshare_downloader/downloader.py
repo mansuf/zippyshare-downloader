@@ -246,7 +246,7 @@ class AsyncFastFileDownloader(BaseDownloader):
                         if not chunks:
                             break
                         writer.write(chunks)
-                        self._update_progress_bar(chunks_size)
+                        self._update_progress_bar(len(chunks))
             
             self._close_progress_bar()
 
