@@ -61,7 +61,7 @@ class AsyncFileDownloader(BaseDownloader):
                 total=file_sizes,
                 unit='B',
                 unit_scale=True,
-                ncols=80
+                dynamic_ncols=True
             )
 
     def _update_progress_bar(self, n):
@@ -161,7 +161,7 @@ class AsyncFastFileDownloader(BaseDownloader):
                 total=file_sizes,
                 unit='B',
                 unit_scale=True,
-                ncols=80
+                dynamic_ncols=True
             )
 
     def _update_progress_bar(self, n):
