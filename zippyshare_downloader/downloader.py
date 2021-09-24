@@ -200,7 +200,6 @@ class AsyncFastFileDownloader(BaseDownloader):
 
         # Parse headers
         headers = self._parse_headers(initial_file_sizes, end_size)
-        print(headers)
 
         # initiate request
         resp = await self.session.get(self.url, headers=headers)
