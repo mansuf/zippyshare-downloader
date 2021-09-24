@@ -53,16 +53,29 @@ class AsyncFileDownloader(BaseDownloader):
 
         self._tqdm = None
     
-    def _build_progres_bar(self, initial_size, file_sizes):
+    def _build_progres_bar(self, initial_size, file_sizes, desc='file_sizes'):
         if self.progress_bar:
-            self._tqdm = tqdm.tqdm(
-                desc='file_sizes',
-                initial=initial_size or 0,
-                total=file_sizes,
-                unit='B',
-                unit_scale=True,
-                dynamic_ncols=True
-            )
+            kwargs = {
+                'initial': initial_size or 0,
+                'total': file_sizes,
+                'unit': 'B',
+                'unit_scale': True
+            }
+
+            # Determine ncols progress bar
+            length = len(desc)
+            if length < 20:
+                kwargs.setdefault('ncols', 80)
+            elif length > 20 and length < 50:
+                kwargs.setdefault('dynamic_ncols', True)
+            # Length desc is more than 40 or 50
+            elif length >= 50:
+                desc = desc[:20] + '...'
+                kwargs.setdefault('ncols', 90)
+
+            kwargs.setdefault('desc', desc)
+
+            self._tqdm = tqdm.tqdm(**kwargs)
 
     def _update_progress_bar(self, n):
         if self._tqdm:
@@ -155,14 +168,27 @@ class AsyncFastFileDownloader(BaseDownloader):
 
     def _build_progres_bar(self, initial_size, file_sizes, desc='file_sizes'):
         if self.progress_bar:
-            self._tqdm = tqdm.tqdm(
-                desc=desc,
-                initial=initial_size or 0,
-                total=file_sizes,
-                unit='B',
-                unit_scale=True,
-                dynamic_ncols=True
-            )
+            kwargs = {
+                'initial': initial_size or 0,
+                'total': file_sizes,
+                'unit': 'B',
+                'unit_scale': True
+            }
+
+            # Determine ncols progress bar
+            length = len(desc)
+            if length < 20:
+                kwargs.setdefault('ncols', 80)
+            elif length > 20 and length < 50:
+                kwargs.setdefault('dynamic_ncols', True)
+            # Length desc is more than 40 or 50
+            elif length >= 50:
+                desc = desc[:20] + '...'
+                kwargs.setdefault('ncols', 90)
+
+            kwargs.setdefault('desc', desc)
+
+            self._tqdm = tqdm.tqdm(**kwargs)
 
     def _update_progress_bar(self, n):
         if self._tqdm:
