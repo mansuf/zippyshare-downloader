@@ -105,17 +105,16 @@ def archive_zip(downloaded_files, name):
             zip_writer.write(path)
             os.remove(path)
 
-# Pretty log zipping all downloaded files 
-def build_zipping_log(downloaded_files, word, spacing=4):
+def build_pretty_list_log(iterable, word, spacing=4):
     word = '%s = [\n' % word
-    for file in downloaded_files.keys():
+    for context in iterable:
 
         # Build spacing
         for _ in range(spacing):
             word += ' '
         
         # Build name file
-        word += f'"{file.name}",\n'
+        word += '"%s",\n' % context
     
     word += ']'
     return word

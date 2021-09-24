@@ -10,7 +10,7 @@ import os
 import zipfile
 from typing import List, Dict
 from pathlib import Path
-from .utils import extract_archived_file, build_zipping_log, archive_zip
+from .utils import extract_archived_file, build_pretty_list_log, archive_zip
 from .errors import FileExpired
 from .parser import finalization_info, parse_info
 from .file import File
@@ -108,7 +108,7 @@ def download(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
     downloaded_files = {}
     files = []
     for url in urls:
-        info = finalization_info(get_info(url))
+        info = get_info(url)
         file = File(info)
         files.append(file)
         if kwargs.get('filename') is not None:
@@ -155,7 +155,7 @@ def extract_info(url: str, download: bool=True, unzip: bool=False, **kwargs) -> 
     :class:`File`
         Zippyshare file
     """
-    info = finalization_info(get_info(url))
+    info = get_info(url)
     file = File(info)
     if download:
         file_path = file.download(**kwargs)
@@ -186,15 +186,13 @@ async def extract_info_coro(url: str, download: bool=True, unzip: bool=False, **
     :class:`File`
         Zippyshare file
     """
-    def process_download(file, kwargs, unzip):
-        file_path = file.download(**kwargs)
-        if unzip:
-            extract_archived_file(str(file_path))
     info = await get_info_coro(url)
     file = File(info)
     loop = asyncio.get_event_loop()
     if download:
-        await loop.run_in_executor(None, lambda: process_download(file, kwargs, unzip))
+        file_path = await file.download_coro(**kwargs)
+        if unzip:
+            await loop.run_in_executor(None, lambda: extract_archived_file(str(file_path)))
     return file
 
 async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
@@ -241,12 +239,10 @@ async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> Li
             kwargs.pop('filename')
         file_path = await file.download_coro(**kwargs)
         downloaded_files[file] = file_path
-        def _unzip_worker(file_path):
-            extract_archived_file(str(file_path))
         if unzip:
-            await loop.run_in_executor(None, lambda: _unzip_worker(file_path))
+            await loop.run_in_executor(None, lambda: extract_archived_file(str(file_path)))
     if zip:
-        log.info(build_zipping_log(downloaded_files, 'Zipping all downloaded files to "%s"' % zip))
+        log.info(build_pretty_list_log(downloaded_files, 'Zipping all downloaded files to "%s"' % zip))
         await loop.run_in_executor(None, lambda: archive_zip(downloaded_files, zip))
-        log.info(build_zipping_log(downloaded_files, 'Successfully zip all downloaded files to "%s"' % zip))
+        log.info(build_pretty_list_log(downloaded_files, 'Successfully zip all downloaded files to "%s"' % zip))
     return files
