@@ -3,7 +3,7 @@ import logging
 import json
 from pathlib import Path
 from datetime import datetime
-from .downloader import AsyncFileDownloader
+from .downloader import AsyncFastFileDownloader, AsyncFileDownloader
 from download import download
 
 log = logging.getLogger(__name__)
@@ -88,7 +88,7 @@ class File:
             replace=replace,
             verbose=False
         )
-        log.info('Successfully downloaded "%s"' % self.name)
+        log.info('Successfully downloaded "%s" %s' % (self.name, extra_word))
         return file_path
 
     async def download_coro(
@@ -96,7 +96,8 @@ class File:
         progress_bar: bool=True,
         replace: bool=False,
         folder: str=None,
-        filename: str=None
+        filename: str=None,
+        fast: bool=False
     ) -> Path:
         """Same like :meth:`File.download()` but for asynchronous process
 
@@ -113,6 +114,8 @@ class File:
             default to `None`.
         filename: :class:`str`
             Set a replacement filename, default to `None`.
+        fast: :class:`bool`
+            Enable Fast download, default to ``False``
 
         Returns
         --------
@@ -125,17 +128,25 @@ class File:
         else:
             _filename = self.name
             extra_word = ''
-        log.info('Downloading "%s" %s' % (self.name, extra_word))
-        file_path = (Path('.') / (folder if folder else '') / _filename)
-        downloader = AsyncFileDownloader(
-            self.download_url,
+        log.info('%sDownloading "%s" %s' % (
+            'Fast ' if fast else '',
             self.name,
+            extra_word
+        ))
+        file_path = (Path('.') / (folder if folder else '') / _filename)
+        args = (
+            self.download_url,
+            str(file_path),
             progress_bar,
             replace
         )
+        if fast:
+            downloader = AsyncFastFileDownloader(*args)
+        else:
+            downloader = AsyncFileDownloader(*args)
         await downloader.download()
         await downloader.cleanup()
-        log.info('Successfully downloaded "%s"' % self.name)
+        log.info('Successfully downloaded "%s" %s' % (self.name, extra_word))
         return file_path
 
     def to_JSON(self):
