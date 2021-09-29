@@ -12,6 +12,13 @@ README = README_PATH.read_text()
 REGEX_VERSION = r'v[0-9]{1}.[0-9]{1}.[0-9]{1,3}'
 VERSION = re.findall(REGEX_VERSION, (HERE / "zippyshare_downloader/__init__.py").read_text())[0]
 
+extras_require = {
+  'docs': [
+    'sphinx',
+    'furo'
+  ]
+}
+
 setup(
   name = 'zippyshare-downloader',         
   packages = ['zippyshare_downloader'],   
@@ -30,7 +37,8 @@ setup(
   },
   url = 'https://github.com/trollfist20/zippyshare-downloader',  
   download_url = 'https://github.com/trollfist20/zippyshare-downloader/archive/%s.tar.gz' % (VERSION),
-  keywords = ['zippyshare', 'zippyshare-download'], 
+  keywords = ['zippyshare', 'zippyshare-download'],
+  extras_require = extras_require,
   install_requires=[           
           'requests',
           'bs4',
