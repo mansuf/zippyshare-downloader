@@ -179,7 +179,7 @@ async def extract_info_coro(url: str, download: bool=True, unzip: bool=False, **
         (if given file is zip or tar format extract it, otherwise ignore it),
         default to ``False``.
     **kwargs
-        These parameters will be passed to :meth:`File.download()`
+        These parameters will be passed to :meth:`File.download_coro()`
 
     Returns
     -------
@@ -218,7 +218,7 @@ async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> Li
         NOTE: You can't mix ``zip`` and ``unzip`` options together
         with value ``True``, it will raise error.
     **kwargs
-        These parameters will be passed to :meth:`File.download()`,
+        These parameters will be passed to :meth:`File.download_coro()`,
         except for parameter ``filename``.
 
     Returns
