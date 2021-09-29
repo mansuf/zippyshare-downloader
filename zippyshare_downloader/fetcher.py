@@ -84,19 +84,19 @@ def download(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
         Zippyshare urls.
     zip: :class:`str`
         Zip all downloaded files once finished.
-        Zip filename will be taken from :param:`zip`,
-        default to `None`.
-        NOTE: You can't mix `zip` and `unzip` options together
-        with value `True`, it will raise error.
+        Zip filename will be taken from ``zip`` parameter,
+        default to ``None``.
+        NOTE: You can't mix ``zip`` and ``unzip`` options together
+        with value ``True``, it will raise error.
     unzip: :class:`bool`
         Unzip all downloaded files once finished
         (if given file is zip format extract it, otherwise ignore it),
-        default to `False`.
-        NOTE: You can't mix `zip` and `unzip` options together
-        with value `True`, it will raise error.
+        default to ``False``.
+        NOTE: You can't mix ``zip`` and ``unzip`` options together
+        with value ``True``, it will raise error.
     **kwargs
-        These parameters will be passed to `File.download()`,
-        except for parameter `filename`.
+        These parameters will be passed to :meth:`File.download()`,
+        except for parameter ``filename``.
 
     Returns
     -------
@@ -141,14 +141,14 @@ def extract_info(url: str, download: bool=True, unzip: bool=False, **kwargs) -> 
     url: :class:`str`
         Zippyshare url.
     download: :class:`bool`
-        Download given zippyshare url if `True`, 
-        default to `True`.
+        Download given zippyshare url if ``True``, 
+        default to ``True``.
     unzip: :class:`bool`
         Unzip downloaded file once finished
         (if given file is zip or tar format extract it, otherwise ignore it),
-        default to `False`.
+        default to ``False``.
     **kwargs
-        These parameters will be passed to `File.download()`
+        These parameters will be passed to :meth:`File.download()`
 
     Returns
     -------
@@ -172,14 +172,14 @@ async def extract_info_coro(url: str, download: bool=True, unzip: bool=False, **
     url: :class:`str`
         Zippyshare url.
     download: :class:`bool`
-        Download given zippyshare url if `True`, 
-        default to `True`.
+        Download given zippyshare url if ``True``, 
+        default to ``True``.
     unzip: :class:`bool`
         Unzip downloaded file once finished
         (if given file is zip or tar format extract it, otherwise ignore it),
-        default to `False`.
+        default to ``False``.
     **kwargs
-        These parameters will be passed to `File.download()`
+        These parameters will be passed to :meth:`File.download()`
 
     Returns
     -------
@@ -207,19 +207,19 @@ async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> Li
         Zippyshare urls.
     zip: :class:`str`
         Zip all downloaded files once finished.
-        Zip filename will be taken from :param:`zip`,
+        Zip filename will be taken from ``zip``,
         default to ``None``.
         NOTE: You can't mix ``zip`` and ``unzip`` options together
-        with value `True`, it will raise error.
+        with value ``True``, it will raise error.
     unzip: :class:`bool`
         Unzip all downloaded files once finished
         (if given file is zip format extract it, otherwise ignore it),
         default to ``False``.
         NOTE: You can't mix ``zip`` and ``unzip`` options together
-        with value `True`, it will raise error.
+        with value ``True``, it will raise error.
     **kwargs
         These parameters will be passed to :meth:`File.download()`,
-        except for parameter :param:`filename`.
+        except for parameter ``filename``.
 
     Returns
     -------

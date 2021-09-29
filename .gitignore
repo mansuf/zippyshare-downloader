@@ -11,3 +11,6 @@ zippyshare_downloader.egg-info
 # Internal test related
 test.py
 test-links.txt
+
+# Docs
+docs/_build
