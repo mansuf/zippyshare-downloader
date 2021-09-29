@@ -11,6 +11,9 @@ __all__ = (
 def process(**kwargs):
     # We don't do fast download in non-async here
     fast = kwargs.pop('fast')
+    if fast:
+        log.error('--fast be set and --async is not')
+        raise ValueError('--fast be set and --async is not')
 
     urls = kwargs.pop('urls')
     
@@ -35,11 +38,6 @@ def process(**kwargs):
             kwargs.pop('download')
             files = download(*urls, **kwargs)
 
-            # Warn the users if --fast is specified
-            # and --async is not
-            if fast:
-                log.warning('--fast is set and --async is not. Ignoring --fast option')
-
             # Warn the users if --filename is specified
             # while using multiple zippyshare urls
             if kwargs.get('filename'):
@@ -50,11 +48,6 @@ def process(**kwargs):
 
     # If urls is single url
     else:
-        # Warn the users if --fast is specified
-        # and --async is not
-        if fast:
-            log.warning('--fast is set and --async is not. Ignoring --fast option')
-
         kwargs.pop('zip')
         file = extract_info(urls, **kwargs)
         print(file.to_JSON())
