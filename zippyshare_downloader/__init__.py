@@ -7,7 +7,7 @@ zippyshare-downloader
 Download file from zippyshare directly from python
 """
 
-__VERSION__ = 'v0.1.1'
+__VERSION__ = 'v0.1.2'
 
 import logging
 from .fetcher import *
