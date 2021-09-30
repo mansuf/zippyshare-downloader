@@ -19,6 +19,11 @@ extras_require = {
   ]
 }
 
+packages = [
+  'zippyshare_downloader',
+  'zippyshare_downloader.cli'
+]
+
 setup(
   name = 'zippyshare-downloader',         
   packages = ['zippyshare_downloader'],   
