@@ -26,7 +26,7 @@ packages = [
 
 setup(
   name = 'zippyshare-downloader',         
-  packages = ['zippyshare_downloader'],   
+  packages = packages,   
   version = VERSION,
   license='MIT',
   description = 'Download file from zippyshare directly with python',
