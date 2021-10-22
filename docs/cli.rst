@@ -48,17 +48,17 @@ Zip and unzip
 
 .. warning:: 
     
-    Option ``--unzip`` or ``-uz`` will only work if you are using multiple zippyshare urls
+    Option ``--zip`` or ``-z`` will only work if you are using multiple zippyshare urls
 
     For example:
 
     .. code-block:: shell
 
         # This will work
-        $ zippyshare-dl "urls.txt" --unzip
+        $ zippyshare-dl "urls.txt" --zip
 
         # This will NOT work
-        $ zippyshare-dl "https://www.zippyshare.com/v/..." --unzip
+        $ zippyshare-dl "https://www.zippyshare.com/v/..." --zip
 
 Download related
 ~~~~~~~~~~~~~~~~~
