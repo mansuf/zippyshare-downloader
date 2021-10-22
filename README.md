@@ -17,7 +17,7 @@ Download file from zippyshare directly from python
 
 ## Key Features
 
-In zippyshare-downloader you can:
+In `zippyshare-downloader` you can:
 
 - download file from Zippyshare (Yes of course).
 - Extract filename, date uploaded, file size, and downloadable url information from given url.
