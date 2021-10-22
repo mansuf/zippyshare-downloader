@@ -2,6 +2,27 @@
 
 Download file from zippyshare directly from python
 
+## Table of Contents
+
+- [Key Features](#key-features)
+- [Minimum Python Version](#minimum-python-version)
+- [Installation](#installation)
+    - [Python Packages Index (PyPI)](#python-packages-index-pypi)
+    - [From the source](#from-the-source)
+- [Simple Usage](#simple-usage)
+    - [Command Line Interface (CLI)](#command-line-interface-cli)
+    - [Embedding (API)](#embedding-api)
+- [Links](#links)
+- [FAQ](#faq)
+
+## Key Features
+
+In zippyshare-downloader you can:
+
+- download file from Zippyshare (Yes of course).
+- Extract filename, date uploaded, file size, and downloadable url information from given url.
+- Fast Download, allows you to download in 2 connections at same time simultaneously.
+
 ## Minimum Python version
 
 ```
@@ -70,7 +91,14 @@ async def get_info():
 
 ```
 
+## Links
+
+- [Documentation](https://zippyshare-downloader.readthedocs.io/en/latest)
+- [PyPI](https://pypi.org/project/zippyshare-downloader/)
+
+
 ## FAQ
 
 **Q:** I always getting `NameError: The use of "bla bla" is not allowed`, what should i do ?<br>
 **A:** Zippyshare always change their code, Please update to last version, if your zippyshare-downloader is latest version, then open a issue [here](https://github.com/mansuf/zippyshare-downloader/issues)
+
