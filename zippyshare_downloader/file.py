@@ -134,6 +134,7 @@ class File:
             extra_word
         ))
         file_path = (Path('.') / (folder if folder else '') / _filename)
+        file_path.parent.mkdir(exist_ok=True, parents=True)
         args = (
             self.download_url,
             str(file_path),
