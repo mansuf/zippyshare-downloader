@@ -18,7 +18,8 @@ from .downloader import StdoutDownloader
 
 __all__ = (
     'download', 'extract_info',
-    'download_coro', 'extract_info_coro'
+    'download_coro', 'extract_info_coro',
+    'download_stdout'
 )
 
 log = logging.getLogger(__name__)
