@@ -48,7 +48,11 @@ class StdoutDownloader(BaseDownloader):
         r = requests.get(self.url, stream=True)
         stdout = open(sys.stdout.fileno(), 'wb')
         for content in r.iter_content(1024):
-            stdout.write(content)
+            try:
+                stdout.write(content)
+            except BrokenPipeError:
+                # ignore it
+                pass
     
     def cleanup(self):
         pass
