@@ -99,6 +99,13 @@ def setup_args():
         action='store_true',
     )
 
+    # Stdout download
+    parser.add_argument(
+        '-pipe',
+        help='Download to stdout, useful for piping media content to media player (like vlc)',
+        action='store_true'
+    )
+
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     args.urls = urls
@@ -127,6 +134,7 @@ def build_kwargs(args, urls):
         'folder': args.folder,
         'filename': args.filename,
         'async': args.async_process,
-        'fast': args.fast
+        'fast': args.fast,
+        'pipe': args.pipe
     }
     return kwargs

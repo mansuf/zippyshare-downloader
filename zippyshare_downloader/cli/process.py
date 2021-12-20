@@ -2,7 +2,7 @@ import asyncio
 import json
 import logging
 from .utils import setup_args, setup_logging, build_kwargs
-from ..fetcher import extract_info_coro, download_coro, extract_info, download
+from ..fetcher import download_stdout, extract_info_coro, download_coro, extract_info, download
 
 __all__ = (
     'main',
@@ -19,6 +19,10 @@ def process(**kwargs):
     
     # If urls is grabbed from file
     if isinstance(urls, list):
+
+        # We don't do stdout download here if given urls is grabbed from file
+        if kwargs.pop('pipe'):
+            raise ValueError('-pipe are not supported with multiple zippyshare urls')
 
         # If --no-download is specified
         if not kwargs.get('download'):
@@ -48,11 +52,22 @@ def process(**kwargs):
 
     # If urls is single url
     else:
+        # download to stdout
+        if kwargs.pop('pipe'):
+            download_stdout(urls)
+            return
+
         kwargs.pop('zip')
         file = extract_info(urls, **kwargs)
         print(file.to_JSON())
 
 async def process_async(**kwargs):
+    # Check if "-pipe" used with --async
+    if kwargs.pop('pipe'):
+        # if yes, throw errror.
+        # Unsupported
+        raise ValueError('-pipe cannot be used with --async option')
+
     urls = kwargs.pop('urls')
     
     # If urls is grabbed from file
@@ -99,11 +114,12 @@ def main():
     # Parse parameters
     args = setup_args()
 
-    # Setup logging
-    if not args.silent:
-        log = setup_logging('zippyshare_downloader', args.verbose)
-    
     kwargs = build_kwargs(args, args.urls)
+    
+    if not kwargs.get('pipe'):
+        # Setup logging if "-pipe" are not present
+        if not args.silent:
+            log = setup_logging('zippyshare_downloader', args.verbose)
 
     async_process = kwargs.pop('async')
     if not async_process:

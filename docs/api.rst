@@ -11,5 +11,7 @@ API Documentation
 
 .. autofunction:: download_coro
 
+.. autofunction:: download_stdout
+
 .. autoclass:: File
     :members:

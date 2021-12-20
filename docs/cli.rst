@@ -86,3 +86,20 @@ Download related
         # This will NOT work
         $ zippyshare-dl "https://www.zippyshare.com/v/..." --fast
 
+Pipe to media player (etc: vlc)
+~~~~~~~~~~~~~~~~~~~
+
+- `pipe` Download to stdout, useful for piping media content to media player (like vlc)
+
+.. code-block:: shell
+
+    # Let's say you want watching videos with vlc from zippyshare
+    # this can be done with piping the stdout from zippyshare-dl
+    $ zippyshare-dl "insert zippyshare url here" -pipe | vlc -
+
+    # or (for Linux / Mac OS)
+    $ python3 -m zippyshare_downloader "insert zippyshare url here" -pipe | vlc -
+
+    # or (for Windows)
+    $ py -3 -m zippyshar_downloader "insert zippyshare url here" -pipe | vlc -
+
