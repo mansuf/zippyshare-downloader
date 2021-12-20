@@ -46,6 +46,7 @@ def parse_info(url, body_html) -> Dict[str, str]:
                 "name_file": list_infos[0].decode_contents(),
                 "size": list_infos[1].decode_contents(),
                 "date_upload": list_infos[2].decode_contents(),
+                'url': url,
                 'download_url': download_url
             }
     log.exception('all patterns parser failed to get required informations')

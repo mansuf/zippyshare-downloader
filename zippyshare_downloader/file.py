@@ -40,6 +40,11 @@ class File:
         return datetime.strptime(self._data['date_upload'], date_format)
     
     @property
+    def url(self):
+        """Return origin url"""
+        return self._data['url']
+
+    @property
     def download_url(self) -> str:
         """Return downloadable url"""
         return self._data['download_url']
