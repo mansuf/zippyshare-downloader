@@ -89,7 +89,9 @@ Download related
 Pipe to media player (etc: vlc)
 ~~~~~~~~~~~~~~~~~~~
 
-- `pipe` Download to stdout, useful for piping media content to media player (like vlc)
+- ``-pipe`` Download to stdout, useful for piping media content to media player (like vlc)
+
+Example Usage
 
 .. code-block:: shell
 
