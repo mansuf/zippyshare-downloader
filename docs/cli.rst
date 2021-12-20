@@ -87,7 +87,7 @@ Download related
         $ zippyshare-dl "https://www.zippyshare.com/v/..." --fast
 
 Pipe to media player (etc: vlc)
-~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``-pipe`` Download to stdout, useful for piping media content to media player (like vlc)
 

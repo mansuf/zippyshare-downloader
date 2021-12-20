@@ -259,7 +259,7 @@ def download_stdout(url):
     then DO NOT DO THIS.
 
     Example usage (Command-line)
-    --------------
+    -----------------------------
 
     .. code-block:: shell
 
