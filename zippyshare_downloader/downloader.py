@@ -46,8 +46,9 @@ class StdoutDownloader(BaseDownloader):
     
     def download(self):
         r = requests.get(self.url, stream=True)
-        for content in r.iter_content(4096):
-            print(content, file=sys.stdout, flush=True)
+        stdout = open(sys.stdout.fileno(), 'wb')
+        for content in r.iter_content(1024):
+            stdout.write(content)
     
     def cleanup(self):
         pass
