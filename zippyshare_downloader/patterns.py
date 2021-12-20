@@ -110,8 +110,58 @@ def pattern2(body_string, url):
     continuation_download_url = continuation_download_url_init[continuation_download_url_init.find('"')+1:]
     return url[:url.find('.')] + '.zippyshare.com' + url_download_init + url_number + continuation_download_url
 
+def pattern3(body_string, url):
+    # Getting download button javascript code
+    parser = BeautifulSoup(body_string, 'html.parser')
+    for script in parser.find_all('script'):
+        if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
+            scrapped_script = script.decode_contents()
+            break
+        else:
+            scrapped_script = None
+    if scrapped_script is None:
+        raise ParserError('download button javascript cannot be found')
+    
+    scripts = io.StringIO(scrapped_script).readlines()
+    _vars = {}
+    init_url = None
+    numbers_pattern = None
+    file_url = None
+    for script in scripts:
+        # Finding variables that contain numbers
+        re_var = re.compile(r'(var ([a-zA-Z]) = )([0-9%]{1,})(;)')
+        found = re_var.search(script)
+        if found:
+            _name = found.group(2)
+            _value = found.group(3)
+            _vars[_name] = _value
+        # Finding url download button
+        if script.strip().startswith('document.getElementById(\'dlbutton\')'):
+            string_re_dlbutton = r'(document\.getElementById\(\'dlbutton\'\)\.href = \")' \
+                                '(\/[a-zA-Z]\/[a-zA-Z0-9]{1,}\/)\"\+' \
+                                '(\([a-zA-Z] \+ [a-zA-Z] \+ [a-zA-Z] - [0-9]\))\+\"(\/.{1,})\";'
+            re_dlbutton = re.compile(string_re_dlbutton)
+            result = re_dlbutton.search(script)
+            if result:
+                init_url = result.group(2)
+                numbers_pattern = result.group(3)
+                file_url = result.group(4)
+            else:
+                raise ParserError('Invalid regex pattern when finding url dlbutton')
+    
+    if not _vars:
+        raise ParserError('Cannot find required variables in dlbutton script')
+    else:
+        for var_name, var_value in _vars.items():
+            numbers_pattern = numbers_pattern.replace(var_name, var_value)
+        final_numbers = str(evaluate(numbers_pattern))
+    return url[:url.find('.')] + '.zippyshare.com' + init_url + final_numbers + file_url
+
+
+
 
 PATTERNS = [
     pattern1,
-    pattern2
+    pattern2,
+    pattern3
 ]
