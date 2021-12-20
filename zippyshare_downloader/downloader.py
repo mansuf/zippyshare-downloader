@@ -1,7 +1,9 @@
 import aiohttp
 import asyncio
+import requests
 import tqdm
 import os
+import sys
 import time
 import logging
 from download import download
@@ -36,6 +38,18 @@ class FileDownloader(BaseDownloader):
 
     def cleanup(self):
         # We do nothing.
+        pass
+
+class StdoutDownloader(BaseDownloader):
+    def __init__(self, url) -> None:
+        self.url = url
+    
+    def download(self):
+        r = requests.get(self.url, stream=True)
+        for content in r.iter_content(4096):
+            print(content, file=sys.stdout, flush=True)
+    
+    def cleanup(self):
         pass
 
 class AsyncFileDownloader(BaseDownloader):

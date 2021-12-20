@@ -14,6 +14,7 @@ from .utils import extract_archived_file, build_pretty_list_log, archive_zip
 from .errors import FileExpired
 from .parser import finalization_info, parse_info
 from .file import File
+from .downloader import StdoutDownloader
 
 __all__ = (
     'download', 'extract_info',
@@ -246,3 +247,32 @@ async def download_coro(*urls, zip: str=None, unzip: bool=False, **kwargs) -> Li
         await loop.run_in_executor(None, lambda: archive_zip(downloaded_files, zip))
         log.info(build_pretty_list_log(downloaded_files, 'Successfully zip all downloaded files to "%s"' % zip))
     return files
+
+def download_stdout(url):
+    """Extract zippyshare download url and then download its content to stdout
+
+    Warning
+    --------
+    This will print all its content to stdout, 
+    if you are not intend to use this for piping the content to media player (like vlc), 
+    then DO NOT DO THIS.
+
+    Example usage (Command-line)
+    --------------
+
+    .. code-block:: shell
+
+        # Let's say you want watching videos with vlc from zippyshare
+        # this can be done with piping the stdout from zippyshare-dl
+        $ zippyshare-dl "insert zippyshare url here" -pipe | vlc -
+
+        # or (for Linux / Mac OS)
+        $ python3 -m zippyshare_downloader "insert zippyshare url here" -pipe | vlc -
+
+        # or (for Windows)
+        $ py -3 -m zippyshar_downloader "insert zippyshare url here" -pipe | vlc -
+
+    """
+    file = extract_info(url, download=False)
+    downloader = StdoutDownloader(file.download_url)
+    downloader.download()
