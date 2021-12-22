@@ -3,6 +3,10 @@ import logging
 import os
 from ..utils import check_valid_zippyshare_url
 
+class InvalidParameter(Exception):
+    """Raised when invalid parameter found"""
+    pass
+
 def _check_urls(url):
     if os.path.exists(url):
         with open(url, 'r') as opener:
@@ -106,6 +110,13 @@ def setup_args():
         action='store_true'
     )
 
+    # JSON output format
+    parser.add_argument(
+        '--json',
+        help='Print out file informations to JSON format. NOTE: logging will be disabled.',
+        action='store_true'
+    )
+
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     args.urls = urls
@@ -135,6 +146,23 @@ def build_kwargs(args, urls):
         'filename': args.filename,
         'async': args.async_process,
         'fast': args.fast,
-        'pipe': args.pipe
+        'pipe': args.pipe,
+        'json': args.json
     }
     return kwargs
+
+def pretty_print_result(file):
+    result = "\n"
+    result += "Result from url %s\n" % file.url
+    result += "================"
+
+    # build additional lines from length file.url
+    for _ in range(len(file.url)):
+        result += "="
+    result += "=\n"
+
+    result += "Name          : %s\n" % file.name
+    result += "Size          : %s\n" % file.size_fmt
+    result += "Date uploaded : %s\n" % file.date_uploaded_fmt
+    result += "Download URL  : %s" % file.download_url
+    print(result)
