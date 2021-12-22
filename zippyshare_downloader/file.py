@@ -19,7 +19,7 @@ class File:
     def __repr__(self) -> str:
         return '<Zippyshare File name="%s" size="%s">' % (
             self.name,
-            self.size
+            self.size_fmt
         )
 
     @property
