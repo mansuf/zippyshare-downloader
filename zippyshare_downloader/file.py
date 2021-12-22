@@ -45,6 +45,11 @@ class File:
         return datetime.strptime(self._data['date_upload'], date_format)
     
     @property
+    def date_uploaded_fmt(self) -> str:
+        """:class:`str`: Return formatted date that this file uploaded."""
+        return self._data['date_upload']
+
+    @property
     def url(self):
         """:class:`str`: Return origin url"""
         return self._data['url']
