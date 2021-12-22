@@ -24,29 +24,29 @@ class File:
 
     @property
     def name(self) -> str:
-        """Return name of the file"""
+        """:class:`str`: Return name of the file"""
         return self._data['name_file']
 
     @property
     def size(self) -> float:
-        """Return size of the file, in bytes."""
+        """:class:`float`: Return size of the file, in bytes."""
         re_num = re.compile(r'[0-9.]{1,}')
         return float(re_num.match(self._data['size']).group()) * 1000 * 1000
 
     @property
     def date_uploaded(self) -> datetime:
-        """Return date that this file uploaded."""
+        """:class`datetime.datetime`: Return date that this file uploaded."""
         date_format = '%d-%m-%Y %H:%M'
         return datetime.strptime(self._data['date_upload'], date_format)
     
     @property
     def url(self):
-        """Return origin url"""
+        """:class:`str`: Return origin url"""
         return self._data['url']
 
     @property
     def download_url(self) -> str:
-        """Return downloadable url"""
+        """:class:`download_url`: Return downloadable url"""
         return self._data['download_url']
 
     def download(
@@ -75,7 +75,7 @@ class File:
 
         Returns
         --------
-        :class:`Path` 
+        :class:`pathlib.Path` 
             Zippyshare file downloaded
         """
         if filename:
@@ -124,7 +124,7 @@ class File:
 
         Returns
         --------
-        :class:`Path` 
+        :class:`pathlib.Path` 
             Zippyshare file downloaded
         """
         if filename:
@@ -155,10 +155,10 @@ class File:
         log.info('Successfully downloaded "%s" %s' % (self.name, extra_word))
         return file_path
 
-    def to_JSON(self):
-        """Return all zippyshare informations in JSON"""
+    def to_JSON(self) -> str:
+        """:class:`str`: Return all zippyshare informations in JSON"""
         return json.dumps(self._data.copy())
     
-    def to_dict(self):
-        """Return all zippyshare informations in dict"""
+    def to_dict(self) -> dict:
+        """:class:`dict`: Return all zippyshare informations in dict"""
         return self._data.copy()
