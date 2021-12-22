@@ -12,6 +12,10 @@ README = README_PATH.read_text()
 REGEX_VERSION = r'v[0-9]{1}.[0-9]{1}.[0-9]{1,3}'
 VERSION = re.findall(REGEX_VERSION, (HERE / "zippyshare_downloader/__init__.py").read_text())[0]
 
+requirements = []
+with open('requirements.txt', 'r') as r:
+  requirements = r.read().splitlines()
+
 extras_require = {
   'docs': [
     'sphinx',
@@ -44,12 +48,7 @@ setup(
   download_url = 'https://github.com/trollfist20/zippyshare-downloader/archive/%s.tar.gz' % (VERSION),
   keywords = ['zippyshare', 'zippyshare-download'],
   extras_require = extras_require,
-  install_requires=[           
-          'requests',
-          'bs4',
-          'download',
-          'aiohttp'
-      ],
+  install_requires=requirements,
   classifiers=[
     'Development Status :: 5 - Production/Stable',
     'Intended Audience :: Developers',
@@ -59,7 +58,8 @@ setup(
     'Programming Language :: Python :: 3.6',
     'Programming Language :: Python :: 3.7',
     'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9'
+    'Programming Language :: Python :: 3.9',
+    'Programming Language :: Python :: 3.10'
   ],
   python_requires='>=3.5'
 )
