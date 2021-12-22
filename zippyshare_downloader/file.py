@@ -35,7 +35,7 @@ class File:
 
     @property
     def date_uploaded(self) -> datetime:
-        """:class`datetime.datetime`: Return date that this file uploaded."""
+        """:class:`datetime.datetime`: Return date that this file uploaded."""
         date_format = '%d-%m-%Y %H:%M'
         return datetime.strptime(self._data['date_upload'], date_format)
     
@@ -156,9 +156,9 @@ class File:
         return file_path
 
     def to_JSON(self) -> str:
-        """:class:`str`: Return all zippyshare informations in JSON"""
+        """Return all zippyshare informations in JSON"""
         return json.dumps(self._data.copy())
     
     def to_dict(self) -> dict:
-        """:class:`dict`: Return all zippyshare informations in dict"""
+        """Return all zippyshare informations in dict"""
         return self._data.copy()
