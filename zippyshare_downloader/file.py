@@ -34,6 +34,11 @@ class File:
         return float(re_num.match(self._data['size']).group()) * 1000 * 1000
 
     @property
+    def size_fmt(self) -> str:
+        """:class:`str`: Return formatted size of the file"""
+        return self._data['size']
+
+    @property
     def date_uploaded(self) -> datetime:
         """:class:`datetime.datetime`: Return date that this file uploaded."""
         date_format = '%d-%m-%Y %H:%M'
