@@ -50,6 +50,26 @@ And then run `setup.py`
 python setup.py install
 ```
 
+**NOTE:** If you think zippyshare-downloader are already downloaded with latest version, but the app doesn't seems work properly (like this case [#11](https://github.com/mansuf/zippyshare-downloader/issues/11)). 
+You can reinstall zippyshare-downloader by following this command:
+
+```bash
+# For Windows
+py -3 -m pip cache purge zippyshare_downloader
+py -3 -m pip uninstall zippyshare-downloader
+py -3 -m pip install -U zippyshare-downloader
+
+# For Linux / Mac OS
+python3 -m pip cache purge zippyshare_downloader
+python3 -m pip uninstall zippyshare-downloader
+python3 -m pip install -U zippyshare-downloader
+
+```
+
+If still doesn't work properly that means Zippyshare change their code, you can open issue [here](https://github.com/mansuf/zippyshare-downloader/issues)
+
+
+
 ## Simple Usage
 
 ### Command Line Interface (CLI)
