@@ -49,11 +49,9 @@ def get_info(url) -> Dict[str, str]:
 
 async def get_info_coro(url) -> Dict[str, str]:
     """
-    Get informations in Zippyshare url.
+    "Coroutine function"
 
-    Unlike `get_info()` when you have to call `finalization_info()` manually
-    to fix incorrect informations.
-    This function automatically called it.
+    Get informations in Zippyshare url.
     """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
