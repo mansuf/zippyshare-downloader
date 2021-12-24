@@ -27,6 +27,10 @@ log = logging.getLogger(__name__)
 def get_info(url) -> Dict[str, str]:
     """
     Get informations in Zippyshare url.
+
+    This function will return raw information from given zippyshare url
+    which in :class:`dict` data type. Normally you don't use this
+    , this will be used in :meth:`extract_info` and :meth:`download`.
     """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
@@ -52,6 +56,10 @@ async def get_info_coro(url) -> Dict[str, str]:
     "Coroutine function"
 
     Get informations in Zippyshare url.
+
+    This function will return raw information from given zippyshare url
+    which in :class:`dict` data type. Normally you don't use this
+    , this will be used in :meth:`extract_info_coro` and :meth:`download_coro`.
     """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
@@ -259,7 +267,6 @@ def download_stdout(url):
     then DO NOT DO THIS.
 
     Example usage (Command-line)
-    -----------------------------
 
     .. code-block:: shell
 
