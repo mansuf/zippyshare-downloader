@@ -9,7 +9,8 @@ from .errors import *
 from .utils import evaluate, getStartandEndvalue
 
 __all__ = (
-    'pattern1', 'pattern2', 'PATTERNS'
+    'pattern1', 'pattern2', 'pattern3'
+    'PATTERNS'
 )
 
 def pattern1(body_string, url):
