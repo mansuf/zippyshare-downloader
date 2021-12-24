@@ -165,6 +165,8 @@ def extract_info(url: str, download: bool=True, unzip: bool=False, **kwargs) -> 
 
 async def extract_info_coro(url: str, download: bool=True, unzip: bool=False, **kwargs) -> File:
     """
+    "Coroutine Function"
+
     Extract all informations in Zippyshare url.
 
     Parameters
