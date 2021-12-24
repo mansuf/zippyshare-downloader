@@ -126,18 +126,9 @@ def download(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
         if unzip:
             extract_archived_file(str(file_path))
     if zip:
-        log.info('Zipping all downloaded files')
-        path = list(downloaded_files.values())[0]
-        zip_path = (path.parent / zip)
-        with zipfile.ZipFile(zip_path, 'w') as zip_writer:
-            for file, path in downloaded_files.items():
-                log.debug('Writing %s to %s' % (
-                    path,
-                    zip_path
-                ))
-                zip_writer.write(path)
-                os.remove(path)
-        log.info('Successfully zipped all downloaded files')
+        log.info(build_pretty_list_log(downloaded_files, 'Zipping all downloaded files to "%s"' % zip))
+        archive_zip(downloaded_files, zip)
+        log.info(build_pretty_list_log(downloaded_files, 'Successfully zip all downloaded files to "%s"' % zip))
     return files
 
 def extract_info(url: str, download: bool=True, unzip: bool=False, **kwargs) -> File:
