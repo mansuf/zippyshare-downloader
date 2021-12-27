@@ -134,7 +134,7 @@ def main():
     kwargs = build_kwargs(args, args.urls)
 
     # Disable logging if "-pipe" or "--json" or "--silent" is present
-    if kwargs.get('pipe') or kwargs.get('json') or kwargs.get('silent'):
+    if kwargs.get('pipe') or kwargs.get('json'):
         pass
     else:
         if not args.silent:
