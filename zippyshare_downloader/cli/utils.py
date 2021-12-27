@@ -135,15 +135,22 @@ def setup_logging(name_module, verbose=False):
     return log
 
 def build_kwargs(args, urls):
+    # -pipe option will not enable progress bar because of downloader
+    if args.json:
+        progress_bar = False
+    else:
+        progress_bar = not args.silent
+
     kwargs = {
         'urls': urls,
         'download': not args.no_download,
         'unzip': args.unzip,
         'zip': args.zip,
-        'progress_bar': not args.silent,
+        'progress_bar': progress_bar,
         'replace': args.replace,
         'folder': args.folder,
         'filename': args.filename,
+        'silent': args.silent,
         'async': args.async_process,
         'fast': args.fast,
         'pipe': args.pipe,

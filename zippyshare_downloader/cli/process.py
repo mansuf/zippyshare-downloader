@@ -9,6 +9,7 @@ __all__ = (
 )
 
 def process(**kwargs):
+    silent = kwargs.pop('silent')
     json = kwargs.pop('json')
     # We don't do fast download in non-async here
     fast = kwargs.pop('fast')
@@ -51,7 +52,7 @@ def process(**kwargs):
         # Print all file informations 
         if json:
             print(dumps({'urls': [file.to_JSON() for file in files]}))
-        else:
+        elif not silent:
             for file in files:
                 pretty_print_result(file)
 
@@ -66,10 +67,11 @@ def process(**kwargs):
         file = extract_info(urls, **kwargs)
         if json:
             print(file.to_JSON())
-        else:
+        elif not silent:
             pretty_print_result(file)
 
 async def process_async(**kwargs):
+    silent = kwargs.pop('silent')
     json = kwargs.pop('json')
     # Check if "-pipe" used with --async
     if kwargs.pop('pipe'):
@@ -110,7 +112,7 @@ async def process_async(**kwargs):
         # Print all files informations
         if json:
             print(dumps({'urls': [file.to_JSON() for file in files]}))
-        else:
+        elif not silent:
             for file in files:
                 pretty_print_result(file)
 
@@ -120,7 +122,7 @@ async def process_async(**kwargs):
         file = await extract_info_coro(urls, **kwargs)
         if json:
             print(file.to_JSON())
-        else:
+        elif not silent:
             pretty_print_result(file)
 
 def main():
@@ -130,11 +132,11 @@ def main():
     # Parse parameters
     args = setup_args()
     kwargs = build_kwargs(args, args.urls)
-    
-    if kwargs.get('pipe') or kwargs.get('json'):
+
+    # Disable logging if "-pipe" or "--json" or "--silent" is present
+    if kwargs.get('pipe') or kwargs.get('json') or kwargs.get('silent'):
         pass
     else:
-        # Setup logging if "-pipe" are not present
         if not args.silent:
             log = setup_logging('zippyshare_downloader', args.verbose)
 
