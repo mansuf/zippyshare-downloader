@@ -1,3 +1,7 @@
+[![pypi-total-downloads](https://img.shields.io/pypi/dm/zippyshare-downloader?label=DOWNLOADS&style=for-the-badge)](https://pypi.org/project/zippyshare-downloader)
+[![python-ver](https://img.shields.io/pypi/pyversions/zippyshare-downloader?style=for-the-badge)](https://pypi.org/project/zippyshare-downloader)
+[![pypi-release-ver](https://img.shields.io/pypi/v/zippyshare-downloader?style=for-the-badge)](https://pypi.org/project/zippyshare-downloader)
+
 # zippyshare-downloader
 
 Download file from zippyshare directly from python
