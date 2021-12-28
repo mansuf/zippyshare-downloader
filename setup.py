@@ -3,14 +3,17 @@ from setuptools import setup
 import re
 
 HERE = pathlib.Path(__file__).parent
-
 README_PATH = (HERE / "README.md")
-
 README = README_PATH.read_text()
 
 # Find version without importing it
-REGEX_VERSION = r'v[0-9]{1}.[0-9]{1}.[0-9]{1,3}'
-VERSION = re.findall(REGEX_VERSION, (HERE / "zippyshare_downloader/__init__.py").read_text())[0]
+re_version = r'__version__ = \'([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})\''
+_version = re.search(re_version, (HERE / "zippyshare_downloader/__init__.py").read_text())
+
+if _version is None:
+  raise RuntimeError("Version is not set")
+
+version = _version.group(1)
 
 requirements = []
 with open('requirements.txt', 'r') as r:
@@ -31,7 +34,7 @@ packages = [
 setup(
   name = 'zippyshare-downloader',         
   packages = packages,   
-  version = VERSION,
+  version = version,
   license='MIT',
   description = 'Download file from zippyshare directly with python',
   long_description= README,
@@ -45,7 +48,7 @@ setup(
     ]
   },
   url = 'https://github.com/trollfist20/zippyshare-downloader',  
-  download_url = 'https://github.com/trollfist20/zippyshare-downloader/archive/%s.tar.gz' % (VERSION),
+  download_url = 'https://github.com/trollfist20/zippyshare-downloader/archive/%s.tar.gz' % (version),
   keywords = ['zippyshare', 'zippyshare-download'],
   extras_require = extras_require,
   install_requires=requirements,
