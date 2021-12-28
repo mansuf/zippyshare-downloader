@@ -15,3 +15,8 @@ test-links.txt
 
 # Docs
 docs/_build
+
+# PyInstaller files
+build/
+dist/
+*.spec
