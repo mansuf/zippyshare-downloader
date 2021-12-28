@@ -13,9 +13,18 @@ __all__ = (
     'PATTERNS'
 )
 
+# Determine html parser
+# use lxml if installed for speed
+try:
+    import lxml
+except ImportError:
+    bs4_parser = 'html.parser'
+else:
+    bs4_parser = 'lxml'
+
 def pattern1(body_string, url):
     # Getting download button javascript code
-    parser = BeautifulSoup(body_string, 'html.parser')
+    parser = BeautifulSoup(body_string, bs4_parser)
     for script in parser.find_all('script'):
         if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
             scrapped_script = script.decode_contents()
@@ -85,7 +94,7 @@ def pattern1(body_string, url):
 
 def pattern2(body_string, url):
     # Getting download button javascript code
-    parser = BeautifulSoup(body_string, 'html.parser')
+    parser = BeautifulSoup(body_string, bs4_parser)
     for script in parser.find_all('script'):
         if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
             scrapped_script = script.decode_contents()
@@ -113,7 +122,7 @@ def pattern2(body_string, url):
 
 def pattern3(body_string, url):
     # Getting download button javascript code
-    parser = BeautifulSoup(body_string, 'html.parser')
+    parser = BeautifulSoup(body_string, bs4_parser)
     for script in parser.find_all('script'):
         if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
             scrapped_script = script.decode_contents()
