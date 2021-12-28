@@ -160,4 +160,14 @@ def main():
     if not async_process:
         process(**kwargs)
     else:
-        asyncio.run(process_async(**kwargs))
+        # Using uvloop if installed
+        # for faster operations
+        try:
+            import uvloop # type: ignore
+        except ImportError:
+            pass
+        else:
+            uvloop.install()
+
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(process_async(**kwargs))
