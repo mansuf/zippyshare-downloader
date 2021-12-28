@@ -9,9 +9,13 @@ from pathlib import Path
 base = Path(__name__).parent
 
 # Find version without importing it
-script = (base / 'zippyshare_downloader' / '__init__.py').read_text()
-regex = re.compile(r'[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}')
-version = regex.search(script).group()
+re_version = r'__version__ = \'([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})\''
+_version = re.search(re_version, (HERE / "zippyshare_downloader/__init__.py").read_text())
+
+if _version is None:
+  raise RuntimeError("Version is not set")
+
+version = _version.group(1)
 
 # Compile for one-file bundled executable.
 subprocess.run([
