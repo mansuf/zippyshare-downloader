@@ -131,6 +131,14 @@ def setup_args():
         action='store_true'
     )
 
+    parser.add_argument(
+        '--version',
+        '-V',
+        help='Print zippyshare-downloader version',
+        action='version',
+        version=__version__
+    )
+
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     args.urls = urls
