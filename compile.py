@@ -10,7 +10,7 @@ base = Path(__name__).parent
 
 # Find version without importing it
 re_version = r'__version__ = \'([0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3})\''
-_version = re.search(re_version, (HERE / "zippyshare_downloader/__init__.py").read_text())
+_version = re.search(re_version, (base / "zippyshare_downloader/__init__.py").read_text())
 
 if _version is None:
   raise RuntimeError("Version is not set")
