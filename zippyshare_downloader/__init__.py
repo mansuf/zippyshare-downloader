@@ -1,13 +1,11 @@
 # zippyshare-downloader
 # __init__.py
 
-"""
-zippyshare-downloader
-
-Download file from zippyshare directly from python
-"""
-
 __version__ = '0.2.0'
+__description__ = "Download file from Zippyshare directly from python"
+__author__ = "mansuf"
+__license__ = "MIT"
+__repository__ = "https://github.com/mansuf/zippyshare-downloader"
 
 import logging
 from .fetcher import *

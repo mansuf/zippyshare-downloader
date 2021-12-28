@@ -1,7 +1,14 @@
 import argparse
 import logging
 import os
-from ..utils import check_valid_zippyshare_url
+from zippyshare_downloader.utils import check_valid_zippyshare_url
+from zippyshare_downloader import (
+    __version__,
+    __description__,
+    __author__,
+    __repository__,
+    __license__
+)
 
 class InvalidParameter(Exception):
     """Raised when invalid parameter found"""
@@ -14,8 +21,15 @@ def _check_urls(url):
     else:
         return check_valid_zippyshare_url(url)
 
+def _build_argparse_description():
+    return "{description}, created by {author}. Repository url: {repository}".format(
+        description=__description__,
+        author=__author__,
+        repository=__repository__
+    )
+
 def setup_args():
-    parser = argparse.ArgumentParser(description='Download file from zippyshare directly from python')
+    parser = argparse.ArgumentParser(description=_build_argparse_description())
 
     # URL or File location
     parser.add_argument(

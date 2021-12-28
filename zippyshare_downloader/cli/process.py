@@ -1,8 +1,20 @@
 import asyncio
-from json import dumps
 import logging
-from .utils import setup_args, setup_logging, build_kwargs, pretty_print_result, InvalidParameter
-from ..fetcher import download_stdout, extract_info_coro, download_coro, extract_info, download
+from json import dumps
+from zippyshare_downloader.cli.utils import (
+    setup_args,
+    setup_logging,
+    build_kwargs,
+    pretty_print_result,
+    InvalidParameter
+)
+from zippyshare_downloader.fetcher import (
+    download_stdout,
+    extract_info_coro,
+    download_coro,
+    extract_info,
+    download
+)
 
 __all__ = (
     'main',
