@@ -24,7 +24,8 @@ subprocess.run([
     '-F',
     '--name',
     'zippyshare-dl_%s_packed_x64' % version,
-    '--clean'
+    '--clean',
+    '--noconfirm'
 ], shell=False)
 
 # Compile for one-folder bundle containing an executable
@@ -33,5 +34,6 @@ subprocess.run([
     'zippyshare_downloader/__main__.py',
     '--name',
     'zippyshare-dl_%s_x64' % version,
-    '--clean'
+    '--clean',
+    '--noconfirm'
 ], shell=False)
