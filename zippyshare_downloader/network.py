@@ -36,7 +36,8 @@ class aiohttpProxiedSession(aiohttp.ClientSession):
         kwargs.update(proxy=self.proxy)
         return await super()._request(*args, **kwargs)
 
-_aiohttp_session = aiohttpProxiedSession(proxy=None, trust_env=False)
+# Set to None to prevent RuntimeError
+_aiohttp_session = None # type: aiohttpProxiedSession
 
 def get_proxy():
     """Return configured HTTP/SOCKS proxy"""
@@ -46,8 +47,15 @@ def is_proxied():
     """Check if aiohttp/requests are configured to connect with proxy"""
     return _proxy.proxy is not None
 
+def _create_aiohttp_session():
+    if _aiohttp_session is None:
+        # This is the ridiculous way to modify global variables
+        global_vars = globals()
+        global_vars['_aiohttp_session'] = aiohttpProxiedSession(proxy=None, trust_env=False)
+
 def set_proxy(proxy):
     """Set HTTP/SOCKS proxy to requests/aiohttp"""
+    _create_aiohttp_session()
     pr = {
         'http': proxy,
         'https': proxy
@@ -58,6 +66,7 @@ def set_proxy(proxy):
 
 def remove_proxy():
     """Remove proxy from requests/aiohttp"""
+    _create_aiohttp_session()
     _requests_session.proxies.clear()
     _aiohttp_session.remove_proxy()
     _proxy.proxy = None
@@ -68,4 +77,5 @@ def get_proxied_requests():
 
 def get_proxied_aiohttp():
     """Return proxied aiohttp session"""
+    _create_aiohttp_session()
     return _aiohttp_session
