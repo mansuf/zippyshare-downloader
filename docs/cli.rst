@@ -105,3 +105,12 @@ Example Usage
     # or (for Windows)
     $ py -3 -m zippyshar_downloader "insert zippyshare url here" -pipe | vlc -
 
+Proxy related
+~~~~~~~~~~~~~~
+
+- ``--proxy PROXY`` Set a http/socks proxy, all network in this app will be re-routed from this proxy.
+- ``--proxy-trust-env`` Enable http/socks proxy from environments (``http_proxy``, ``https_proxy``).
+
+.. Warning::
+
+    If you specified ``--proxy`` and ``--proxy-trust-env``, option ``--proxy-trust-env`` will be ignored.
