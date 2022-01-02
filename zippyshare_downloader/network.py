@@ -39,6 +39,7 @@ class NetworkObject:
     def __init__(self) -> None:
         self._proxy = None
         self._aiohttp = None # type: aiohttpProxiedSession
+        self._trust_env = False
 
         # This will be disable proxy from environtments
         self._requests = requestsProxiedSession(trust_env=False)
@@ -53,6 +54,15 @@ class NetworkObject:
         if proxy is None:
             self.clear_proxy()
         self.set_proxy(proxy)
+
+    @property
+    def trust_env(self):
+        """Return ``True`` if http/socks proxy are grabbed from env"""
+        return self._trust_env
+
+    @trust_env.setter
+    def trust_env(self, yes):
+        self._trust_env = yes
 
     def is_proxied(self):
         """Return ``True`` if requests/aiohttp from :class:`NetworkObject`
