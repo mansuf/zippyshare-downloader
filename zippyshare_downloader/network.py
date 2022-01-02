@@ -89,6 +89,16 @@ class NetworkObject:
         if self._aiohttp is None:
             self._aiohttp = aiohttpProxiedSession(self.proxy)
 
+    def close(self):
+        """Close requests session only"""
+        self._requests.close()
+
+    async def close_async(self):
+        """Close all aiohttp/requests session"""
+        self._requests.close()
+        if self._aiohttp.closed:
+            await self._aiohttp.close()
+
 Net = NetworkObject()
 
 def set_proxy(proxy):
