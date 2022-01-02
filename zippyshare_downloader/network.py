@@ -63,6 +63,9 @@ class NetworkObject:
     @trust_env.setter
     def trust_env(self, yes):
         self._trust_env = yes
+        if self.aiohttp:
+            self.aiohttp._trust_env = yes
+        self._requests.trust_env = yes
 
     def is_proxied(self):
         """Return ``True`` if requests/aiohttp from :class:`NetworkObject`
