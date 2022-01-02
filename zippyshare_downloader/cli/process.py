@@ -157,6 +157,8 @@ def main():
     if kwargs.get('pipe') and not kwargs.get('download'):
         raise InvalidParameter('-pipe cannot be used with --no-download option')
 
+    Net.trust_env = args.proxy_trust_env
+
     async_process = kwargs.pop('async')
     if not async_process:
         Net.set_proxy(args.proxy)
