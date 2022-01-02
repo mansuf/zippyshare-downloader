@@ -107,7 +107,7 @@ class NetworkObject:
 
         # Raise error if using in another thread
         if self._aiohttp and self._aiohttp._loop != loop:
-            raise RuntimeError('aiohttp session cannot be used in different thread')
+            raise RuntimeError('created aiohttp session cannot be used in different thread')
 
         if self._aiohttp is None:
             self._aiohttp = aiohttpProxiedSession(self.proxy)
