@@ -68,13 +68,15 @@ class NetworkObject:
             'https': proxy
         }
         self._requests.proxies.update(pr)
-        self.aiohttp.set_proxy(proxy)
+        if self.aiohttp:
+            self.aiohttp.set_proxy(proxy)
 
     def clear_proxy(self):
         """Remove all proxy from aiohttp/requests"""
         self._proxy = None
         self._requests.proxies.clear()
-        self.aiohttp.remove_proxy()
+        if self.aiohttp:
+            self.aiohttp.remove_proxy()
 
     @property
     def aiohttp(self):
