@@ -104,12 +104,13 @@ class NetworkObject:
         # if running create aiohttp session
         # if not don't create it
         loop = asyncio.get_event_loop()
-        if self._aiohttp is None and loop.is_running():
-            self._aiohttp = aiohttpProxiedSession(self.proxy)
-        
+
         # Raise error if using in another thread
         if self._aiohttp and self._aiohttp._loop != loop:
             raise RuntimeError('aiohttp session cannot be used in different thread')
+
+        if self._aiohttp is None:
+            self._aiohttp = aiohttpProxiedSession(self.proxy)
 
     def close(self):
         """Close requests session only"""
