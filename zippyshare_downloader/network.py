@@ -130,7 +130,6 @@ def set_proxy(proxy):
     """Setup HTTP/SOCKS proxy for aiohttp/requests
     
     This is shortcut for :meth:`NetworkObject.set_proxy`. 
-    This will apply to global variable ``Net`` object.
     """
     Net.set_proxy(proxy)
 
@@ -138,6 +137,5 @@ def clear_proxy():
     """Remove all proxy from aiohttp/requests
     
     This is shortcut for :meth:`NetworkObject.clear_proxy`. 
-    This will apply to global variable ``Net`` object.
     """
     Net.clear_proxy()
