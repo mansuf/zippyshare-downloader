@@ -6,15 +6,13 @@ import aiohttp
 import requests
 import asyncio
 import logging
-import os
-import zipfile
 from typing import List, Dict
-from pathlib import Path
 from .utils import extract_archived_file, build_pretty_list_log, archive_zip
 from .errors import FileExpired
 from .parser import finalization_info, parse_info
 from .file import File
 from .downloader import StdoutDownloader
+from .network import Net
 
 __all__ = (
     'download', 'extract_info',
@@ -35,7 +33,7 @@ def get_info(url) -> Dict[str, str]:
     """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
-    r = requests.get(url)
+    r = Net.requests.get(url)
     try:
         r.raise_for_status()
     except requests.HTTPError as e:
@@ -64,24 +62,23 @@ async def get_info_coro(url) -> Dict[str, str]:
     """
     log.info('Grabbing required informations in %s' % url)
     log.debug('Establishing connection to Zippyshare.')
-    async with aiohttp.ClientSession() as session:
-        r = await session.get(url)
-        try:
-            r.raise_for_status()
-        except aiohttp.ClientResponseError as e:
-            log.exception('Zippyshare send %s code' % r.status)
-            raise e from None
-        body_html = await r.text()
-        log.debug('Successfully established connection to Zippyshare.')
-        log.debug('Checking if file is not expired')
-        if 'File has expired and does not exist anymore on this server' in body_html:
-            log.exception('File has expired and does not exist anymore')
-            raise FileExpired('File has expired and does not exist anymore')
-        log.debug('Checking if file is exist')
-        if 'File does not exist on this server' in body_html:
-            log.exception('File does not exist on this server')
-            raise FileNotFoundError('File does not exist on this server')
-        return await finalization_info(parse_info(url, body_html), True, session)
+    r = await Net.aiohttp.get(url)
+    try:
+        r.raise_for_status()
+    except aiohttp.ClientResponseError as e:
+        log.exception('Zippyshare send %s code' % r.status)
+        raise e from None
+    body_html = await r.text()
+    log.debug('Successfully established connection to Zippyshare.')
+    log.debug('Checking if file is not expired')
+    if 'File has expired and does not exist anymore on this server' in body_html:
+        log.exception('File has expired and does not exist anymore')
+        raise FileExpired('File has expired and does not exist anymore')
+    log.debug('Checking if file is exist')
+    if 'File does not exist on this server' in body_html:
+        log.exception('File does not exist on this server')
+        raise FileNotFoundError('File does not exist on this server')
+    return await finalization_info(parse_info(url, body_html), True)
 
 def download(*urls, zip: str=None, unzip: bool=False, **kwargs) -> List[File]:
     """

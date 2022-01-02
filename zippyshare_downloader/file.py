@@ -3,8 +3,7 @@ import logging
 import json
 from pathlib import Path
 from datetime import datetime
-from .downloader import AsyncFastFileDownloader, AsyncFileDownloader
-from download import download
+from .downloader import AsyncFastFileDownloader, AsyncFileDownloader, FileDownloader
 
 log = logging.getLogger(__name__)
 
@@ -96,13 +95,14 @@ class File:
             extra_word = ''
         log.info('Downloading "%s" %s' % (self.name, extra_word))
         file_path = (Path('.') / (folder if folder else '') / _filename)
-        download(
+        downloader = FileDownloader(
             self.download_url,
             str(file_path),
-            progressbar=progress_bar,
-            replace=replace,
-            verbose=False
+            progress_bar=progress_bar,
+            replace=replace
         )
+        downloader.download()
+        downloader.cleanup()
         log.info('Successfully downloaded "%s" %s' % (self.name, extra_word))
         return file_path
 

@@ -15,6 +15,7 @@ from zippyshare_downloader.fetcher import (
     extract_info,
     download
 )
+from zippyshare_downloader.network import Net
 
 __all__ = (
     'main',
@@ -158,8 +159,17 @@ def main():
 
     async_process = kwargs.pop('async')
     if not async_process:
+        Net.set_proxy(args.proxy)
         process(**kwargs)
+        Net.close()
     else:
+        # Little helper
+        async def run_async():
+            if args.proxy:
+                Net.set_proxy(args.proxy)
+            await process_async(**kwargs)
+            await Net.close_async()
+
         # Using uvloop if installed
         # for faster operations
         try:
@@ -170,4 +180,4 @@ def main():
             uvloop.install()
 
         loop = asyncio.get_event_loop()
-        loop.run_until_complete(process_async(**kwargs))
+        loop.run_until_complete(run_async())

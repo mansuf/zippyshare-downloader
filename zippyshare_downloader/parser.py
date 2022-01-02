@@ -8,6 +8,7 @@ from bs4 import BeautifulSoup
 from typing import Dict
 from .patterns import PATTERNS
 from .errors import ParserError
+from .network import Net
 
 log = logging.getLogger(__name__)
 
@@ -53,14 +54,14 @@ def parse_info(url, body_html) -> Dict[str, str]:
     raise ParserError('all patterns parser is failed to get required informations')
 
 def _get_absolute_filename(info):
-    r = requests.get(info['download_url'], stream=True)
+    r = Net.requests.get(info['download_url'], stream=True)
     new_namefile = r.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
     info['name_file'] = urllib.parse.unquote(new_namefile)
     r.close()
     return info
 
-async def _get_absolute_filename_coro(info, session):
-    resp = await session.get(info['download_url'])
+async def _get_absolute_filename_coro(info):
+    resp = await Net.aiohttp.get(info['download_url'])
     new_namefile = resp.headers['Content-Disposition'].replace('attachment; filename*=UTF-8\'\'', '')
     info['name_file'] = urllib.parse.unquote(new_namefile)
     resp.close()
@@ -69,7 +70,7 @@ async def _get_absolute_filename_coro(info, session):
 async def __dummy_return(info):
     return info
 
-def finalization_info(info, _async=False, aiohttp_session=None) -> Dict[str, str]:
+def finalization_info(info, _async=False) -> Dict[str, str]:
     """
     Fix if required informations contains invalid info.
     """
@@ -86,7 +87,7 @@ def finalization_info(info, _async=False, aiohttp_session=None) -> Dict[str, str
     
     if error:
         if _async:
-            return _get_absolute_filename_coro(info, aiohttp_session)
+            return _get_absolute_filename_coro(info)
         else:
             return _get_absolute_filename(info)
     else:

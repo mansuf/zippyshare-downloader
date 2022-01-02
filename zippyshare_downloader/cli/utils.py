@@ -139,6 +139,17 @@ def setup_args():
         version=__version__
     )
 
+    parser.add_argument(
+        '--proxy',
+        help='Set http/socks proxy'
+    )
+
+    parser.add_argument(
+        '--proxy-trust-env',
+        help='use http/socks proxy from environments',
+        action='store_true'
+    )
+
     args = parser.parse_args()
     urls = args.__dict__['ZIPPYSHARE_URL or FILE']
     args.urls = urls
