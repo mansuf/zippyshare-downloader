@@ -8,6 +8,7 @@ __license__ = "MIT"
 __repository__ = "https://github.com/mansuf/zippyshare-downloader"
 
 import logging
+from .network import *
 from .fetcher import *
 from .file import *
 
