@@ -36,13 +36,13 @@ class aiohttpProxiedSession(aiohttp.ClientSession):
         return await super()._request(*args, **kwargs)
 
 class NetworkObject:
-    def __init__(self) -> None:
-        self._proxy = None
+    def __init__(self, proxy=None, trust_env=False) -> None:
+        self._proxy = proxy
         self._aiohttp = None # type: aiohttpProxiedSession
-        self._trust_env = False
+        self._trust_env = trust_env
 
         # This will be disable proxy from environtments
-        self._requests = requestsProxiedSession(trust_env=False)
+        self._requests = requestsProxiedSession(trust_env=self._trust_env)
 
     @property
     def proxy(self):
@@ -115,27 +115,29 @@ class NetworkObject:
     def close(self):
         """Close requests session only"""
         self._requests.close()
-        self._requests = requestsProxiedSession(trust_env=False)
+        self._requests = requestsProxiedSession(self._trust_env)
 
     async def close_async(self):
-        """Close all aiohttp/requests session"""
+        """Close aiohttp & requests session"""
         self.close()
         if self._aiohttp.closed:
             await self._aiohttp.close()
-            self._aiohttp = None
+        self._aiohttp = None
 
 Net = NetworkObject()
 
 def set_proxy(proxy):
     """Setup HTTP/SOCKS proxy for aiohttp/requests
     
-    This is shortcut for :meth:`NetworkObject.set_proxy`
+    This is shortcut for :meth:`NetworkObject.set_proxy`. 
+    This will apply to global variable ``Net`` object.
     """
     Net.set_proxy(proxy)
 
 def clear_proxy():
     """Remove all proxy from aiohttp/requests
     
-    This is shortcut for :meth:`NetworkObject.clear_proxy`
+    This is shortcut for :meth:`NetworkObject.clear_proxy`. 
+    This will apply to global variable ``Net`` object.
     """
     Net.clear_proxy()
