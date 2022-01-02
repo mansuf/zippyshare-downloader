@@ -1,8 +1,10 @@
 import requests
 import aiohttp
+import asyncio
 
 __all__ = (
-    'Net', 'set_proxy', 'clear_proxy'
+    'Net', 'NetworkObject'
+    'set_proxy', 'clear_proxy'
 )
 
 # Modified requests session class with __del__ handler
@@ -86,18 +88,28 @@ class NetworkObject:
         return self._requests
 
     def _create_aiohttp(self):
-        if self._aiohttp is None:
+        # Check if current asyncio loop is running
+        # if running create aiohttp session
+        # if not don't create it
+        loop = asyncio.get_event_loop()
+        if self._aiohttp is None and loop.is_running():
             self._aiohttp = aiohttpProxiedSession(self.proxy)
+        
+        # Raise error if using in another thread
+        if self._aiohttp and self._aiohttp._loop != loop:
+            raise RuntimeError('aiohttp session cannot be used in different thread')
 
     def close(self):
         """Close requests session only"""
         self._requests.close()
+        self._requests = requestsProxiedSession(trust_env=False)
 
     async def close_async(self):
         """Close all aiohttp/requests session"""
-        self._requests.close()
+        self.close()
         if self._aiohttp.closed:
             await self._aiohttp.close()
+            self._aiohttp = None
 
 Net = NetworkObject()
 
