@@ -3,7 +3,7 @@ import aiohttp
 import asyncio
 
 __all__ = (
-    'Net', 'NetworkObject'
+    'Net', 'NetworkObject',
     'set_proxy', 'clear_proxy'
 )
 
