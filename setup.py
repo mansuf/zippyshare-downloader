@@ -15,9 +15,13 @@ if _version is None:
 
 version = _version.group(1)
 
-requirements = []
-with open('requirements.txt', 'r') as r:
-  requirements = r.read().splitlines()
+requirements = [
+  'bs4',
+  'requests[socks]',
+  'tqdm',
+  'aiohttp',
+]
+
 
 extras_require = {
   'docs': [
