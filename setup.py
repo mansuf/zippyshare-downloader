@@ -27,6 +27,10 @@ extras_require = {
   'docs': [
     'sphinx',
     'furo'
+  ],
+  'speed': [
+    'uvloop',
+    'lxml'
   ]
 }
 
