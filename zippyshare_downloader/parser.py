@@ -1,7 +1,6 @@
 # zippyshare-downloader
 # parser.py
 
-import requests
 import logging
 import urllib.parse
 from bs4 import BeautifulSoup

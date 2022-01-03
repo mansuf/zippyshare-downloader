@@ -1,6 +1,4 @@
-import aiohttp
 import asyncio
-import requests
 import tqdm
 import os
 import sys
