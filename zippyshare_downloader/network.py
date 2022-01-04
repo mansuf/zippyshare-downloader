@@ -51,8 +51,6 @@ class NetworkObject:
 
     @proxy.setter
     def proxy(self, proxy):
-        if proxy is None:
-            self.clear_proxy()
         self.set_proxy(proxy)
 
     @property
@@ -75,6 +73,8 @@ class NetworkObject:
 
     def set_proxy(self, proxy):
         """Setup HTTP/SOCKS proxy for aiohttp/requests"""
+        if proxy is None:
+            self.clear_proxy()
         self._proxy = proxy
         pr = {
             'http': proxy,
