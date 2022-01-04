@@ -123,7 +123,7 @@ class NetworkObject:
     async def close_async(self):
         """Close aiohttp & requests session"""
         self.close()
-        if self._aiohttp.closed:
+        if not self._aiohttp.closed:
             await self._aiohttp.close()
         self._aiohttp = None
 
