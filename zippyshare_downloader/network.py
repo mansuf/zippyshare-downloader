@@ -35,6 +35,8 @@ class aiohttpProxiedSession(aiohttp.ClientSession):
         kwargs.update(proxy=self.proxy)
         return await super()._request(*args, **kwargs)
 
+# This improvement comes from https://github.com/mansuf/mangadex-downloader/blob/v0.3.0/mangadex_downloader/network.py#L259-L372
+# soon this will be separated module
 class NetworkObject:
     def __init__(self, proxy=None, trust_env=False) -> None:
         self._proxy = proxy
@@ -42,7 +44,7 @@ class NetworkObject:
         self._trust_env = trust_env
 
         # This will be disable proxy from environtments
-        self._requests = requestsProxiedSession(trust_env=self._trust_env)
+        self._requests = None
 
     @property
     def proxy(self):
@@ -61,9 +63,10 @@ class NetworkObject:
     @trust_env.setter
     def trust_env(self, yes):
         self._trust_env = yes
-        if self.aiohttp:
-            self.aiohttp._trust_env = yes
-        self._requests.trust_env = yes
+        if self._aiohttp:
+            self._aiohttp._trust_env = yes
+        if self._requests:
+            self._requests.trust_env = yes
 
     def is_proxied(self):
         """Return ``True`` if requests/aiohttp from :class:`NetworkObject`
@@ -73,23 +76,29 @@ class NetworkObject:
 
     def set_proxy(self, proxy):
         """Setup HTTP/SOCKS proxy for aiohttp/requests"""
-        if proxy is None:
+        if not proxy:
             self.clear_proxy()
         self._proxy = proxy
-        pr = {
-            'http': proxy,
-            'https': proxy
-        }
-        self._requests.proxies.update(pr)
-        if self.aiohttp:
-            self.aiohttp.set_proxy(proxy)
+        if self._requests:
+            self._update_requests_proxy(proxy)
+        if self._aiohttp:
+            self._update_aiohttp_proxy(proxy)
 
     def clear_proxy(self):
-        """Remove all proxy from aiohttp/requests"""
+        """Remove all proxy from aiohttp/request and disable environments proxy"""
         self._proxy = None
-        self._requests.proxies.clear()
-        if self.aiohttp:
-            self.aiohttp.remove_proxy()
+        self._trust_env = False
+        if self._requests:
+            self._requests.proxies.clear()
+            self._requests.trust_env = False
+        if self._aiohttp:
+            self._aiohttp.remove_proxy()
+            self._aiohttp._trust_env = False
+
+    def _update_aiohttp_proxy(self, proxy):
+        if self._aiohttp:
+            self._aiohttp.set_proxy(proxy)
+            self._aiohttp._trust_env = self._trust_env
 
     @property
     def aiohttp(self):
@@ -97,9 +106,24 @@ class NetworkObject:
         self._create_aiohttp()
         return self._aiohttp
 
+    def _update_requests_proxy(self, proxy):
+        if self._requests:
+            pr = {
+                'http': proxy,
+                'https': proxy
+            }
+            self._requests.proxies.update(pr)
+            self._requests.trust_env = self._trust_env
+
+    def _create_requests(self):
+        if self._requests is None:
+            self._requests = requestsProxiedSession(self._trust_env)
+            self._update_requests_proxy(self.proxy)
+
     @property
     def requests(self):
         """Return proxied requests (if configured)"""
+        self._create_requests()
         return self._requests
 
     def _create_aiohttp(self):
@@ -114,11 +138,12 @@ class NetworkObject:
 
         if self._aiohttp is None:
             self._aiohttp = aiohttpProxiedSession(self.proxy)
+            self._update_aiohttp_proxy(self.proxy)
 
     def close(self):
         """Close requests session only"""
         self._requests.close()
-        self._requests = requestsProxiedSession(self._trust_env)
+        self._requests = None
 
     async def close_async(self):
         """Close aiohttp & requests session"""
@@ -126,7 +151,6 @@ class NetworkObject:
         if not self._aiohttp.closed:
             await self._aiohttp.close()
         self._aiohttp = None
-
 Net = NetworkObject()
 
 def set_proxy(proxy):
