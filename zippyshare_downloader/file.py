@@ -143,8 +143,8 @@ class File:
         else:
             _filename = self.name
             extra_word = ''
-        log.info('%sDownloading "%s" %s' % (
-            'Fast ' if fast else '',
+        log.info('%s "%s" %s' % (
+            'Fast Downloading' if fast else 'Downloading',
             self.name,
             extra_word
         ))
