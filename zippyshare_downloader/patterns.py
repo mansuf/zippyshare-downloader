@@ -146,7 +146,7 @@ def pattern3(body_string, url):
             _value = found.group(3)
             _vars[_name] = _value
         # Finding url download button
-        if script.strip().startswith('document.getElementById(\'dlbutton\')'):
+        if script.strip().startswith('document.getElementById(\'dlbutton\').href'):
             string_re_dlbutton = r'(document\.getElementById\(\'dlbutton\'\)\.href = \")' \
                                 '(\/[a-zA-Z]\/[a-zA-Z0-9]{1,}\/)\"\+' \
                                 '(\([a-zA-Z] \+ [a-zA-Z] \+ [a-zA-Z] - [0-9]\))\+\"(\/.{1,})\";'
@@ -167,11 +167,89 @@ def pattern3(body_string, url):
         final_numbers = str(evaluate(numbers_pattern))
     return url[:url.find('.')] + '.zippyshare.com' + init_url + final_numbers + file_url
 
+def pattern4(body_string, url):
+    # Getting download button javascript code
+    parser = BeautifulSoup(body_string, bs4_parser)
+    for script in parser.find_all('script'):
+        if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
+            scrapped_script = script.decode_contents()
+            break
+        else:
+            scrapped_script = None
+    if scrapped_script is None:
+        raise ParserError('download button javascript cannot be found')
 
+    # Finding omg attribute value in dlbutton element
+    elements = io.StringIO(scrapped_script).readlines()
+    omg_element = 'document.getElementById(\'dlbutton\').omg = '
+    for element in elements:
+        e = element.strip()
+        if e.startswith(omg_element):
+            omg = e.replace(omg_element, '').replace('"', '').replace(';', '')
+            break
+        else:
+            omg = None
+    if omg is None:
+        raise ParserError('omg attribute in download button javascript cannot be found')
+
+    # Emulate .substr() function
+    substr_re = r'.substr\((?P<start>[0-9]), (?P<length>[0-9])\)'
+    substr = re.search(substr_re, omg)
+    if not substr:
+        raise ParserError(".substr() function cannot be found")
+
+    substr_start = substr.group('start')
+    substr_length = substr.group('length')
+    substr_value = re.sub(substr_re, '', omg)[int(substr_start):int(substr_length)]
+
+    scripts = io.StringIO(scrapped_script).readlines()
+    _vars = {}
+    init_url = None
+    math_func = None
+    file_url = None
+    for script in scripts:
+        # Finding variables that contain numbers
+        re_var = re.compile(r'(var ([a-zA-Z]) = )([0-9]{1,})(;)')
+        found = re_var.search(script)
+        if found:
+            _name = found.group(2)
+            _value = found.group(3)
+
+            if _value.startswith('document'):
+                continue
+
+            _vars[_name] = _value
+
+        # Finding url download button
+        if script.strip().startswith('document.getElementById(\'dlbutton\').href'):
+            string_re_dlbutton = r'(document\.getElementById\(\'dlbutton\'\)\.href = \")(\/[a-zA-Z]\/[a-zA-Z0-9]{1,}\/)\"\+(\(Math\.pow\([a-zA-Z], [0-9]\)\+[a-zA-Z]\))\+\"(\/.{1,})\";'
+            re_dlbutton = re.compile(string_re_dlbutton)
+            result = re_dlbutton.search(script)
+            if result:
+                init_url = result.group(2)
+                math_func = result.group(3)
+                file_url = result.group(4)
+            else:
+                raise ParserError('Invalid regex pattern when finding url dlbutton')
+
+    re_math_pow = r'\(Math\.pow\((?P<x>[a-zA-Z]), (?P<y>[0-9]{1,})\)\+[a-zA-Z]\)'
+    x_y_math_pow = re.search(re_math_pow, math_func)
+    if not x_y_math_pow:
+        raise ParserError("Math.pow() cannot be found")
+    
+    x = x_y_math_pow.group('x')
+    x = x.replace(x, _vars[x])
+    y = x_y_math_pow.group('y')
+    b = len(substr_value)
+
+    final_numbers = int(math.pow(int(x), int(y)) + b)
+
+    return url[:url.find('.')] + '.zippyshare.com' + init_url + str(final_numbers) + file_url
 
 
 PATTERNS = [
     pattern1,
     pattern2,
-    pattern3
-]
+    pattern3,
+    pattern4
+] 
