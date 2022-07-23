@@ -9,7 +9,8 @@ from .errors import *
 from .utils import evaluate, getStartandEndvalue
 
 __all__ = (
-    'pattern1', 'pattern2', 'pattern3'
+    'pattern1', 'pattern2', 'pattern3',
+    'pattern4', 'pattern5',
     'PATTERNS'
 )
 
@@ -83,8 +84,6 @@ def pattern1(body_string, url):
         random_number = uncompiled_number.replace('a', str(math.ceil(int(a)/3))).replace('b', b)
     else:
         random_number = uncompiled_number.replace('a', str(math.floor(int(a)/3))).replace('b', b)
-
-    
 
     # Now using self.evaluate() to safely do math calculations
     url_number = str(evaluate(random_number))
@@ -246,10 +245,145 @@ def pattern4(body_string, url):
 
     return url[:url.find('.')] + '.zippyshare.com' + init_url + str(final_numbers) + file_url
 
+def pattern5(body_string, url):
+    # Getting download button javascript code
+    parser = BeautifulSoup(body_string, bs4_parser)
+    for script in parser.find_all('script'):
+        if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
+            scrapped_script = script.decode_contents()
+            break
+        else:
+            scrapped_script = None
+    if scrapped_script is None:
+        raise ParserError('download button javascript cannot be found')
+
+    omg_element = parser.find('span', {'id': 'omg'})
+    if omg_element is None:
+        raise ParserError("Cannot find span element with id='omg'")
+
+    omg_value = omg_element.attrs['class'][0]
+
+    scripts = io.StringIO(scrapped_script).readlines()
+    init_url = None
+    numbers_pattern = None
+    file_url = None
+    for script in scripts:
+        # Finding url download button
+        if script.strip().startswith('document.getElementById(\'dlbutton\').href'):
+            string_re_dlbutton = r'(document\.getElementById\(\'dlbutton\'\)\.href = \")' \
+                                '(\/[a-zA-Z]\/[a-zA-Z0-9]{1,}\/)\"\+' \
+                                '(\([0-9a-zA-Z%+()\/ ]{1,}\))\+\"(\/.{1,})\";'
+            re_dlbutton = re.compile(string_re_dlbutton)
+            result = re_dlbutton.search(script)
+            if result:
+                init_url = result.group(2)
+                numbers_pattern = result.group(3)
+                file_url = result.group(4)
+            else:
+                raise ParserError('Invalid regex pattern when finding url dlbutton')
+
+    _vars = {}
+    re_init_func = r'var (?P<var_name>[a-zA-Z]) = function\(\) \{return (?P<var_value>[0-9]{1,})\};'
+
+    # Find a function with return statement only
+    for script in scripts:
+        init_func = re.search(re_init_func, script)
+        if init_func is None:
+            continue
+
+        init_func_value = init_func.group('var_value')
+        init_func_name = init_func.group('var_name')
+        _vars[init_func_name] = init_func_value
+
+    if not _vars:
+        raise ParserError("Cannot find function with return statement only")
+
+    # Find functions with return value "some_func() + some_numbers"
+    found_eval_func = False
+    re_eval_func = r'var (?P<var_name>[a-zA-Z]) = function\(\) \{return (?P<var_func_name>[a-zA-Z])\(\) (?P<operator>[+-/*]) (?P<var_const_value>[0-9]{1,})\};'
+    for script in scripts:
+        eval_func = re.search(re_eval_func, script)
+
+        if eval_func is None:
+            continue
+
+        var_name = eval_func.group('var_name')
+        func_name = eval_func.group('var_func_name')
+        const_value = eval_func.group('var_const_value')
+        operator = eval_func.group('operator')
+
+        try:
+            eval_func_value = _vars[func_name]
+        except KeyError:
+            # Failed here
+            raise ParserError('Failed to find function with return value "some_func() + some_numbers"') from None
+
+        _vars[var_name] = str(evaluate("{0} {1} {2}".format(
+            eval_func_value,
+            operator,
+            const_value
+        )))
+
+        found_eval_func = True
+
+    if not found_eval_func:
+        # Fail here, do not continue
+        raise ParserError('Failed to find function with return value "some_func() + some_numbers"')
+
+    # Find the next var containing omg element
+    re_var_omg = r"var (?P<var_name>[a-zA-Z]) = document\.getElementById\('omg'\)"
+    found_omg_var = False
+    for script in scripts:
+        var_omg = re.search(re_var_omg, script)
+
+        if var_omg is None:
+            continue
+
+        var_name = var_omg.group('var_name')
+
+        _vars[var_name] = omg_value
+        found_omg_var = True
+        break
+
+    if not found_omg_var:
+        raise ParserError("Failed to find omg variable")
+
+    # Final
+    re_eval_var = r'if \((?P<boolean>true|false)\) { (?P<var_name>[a-zA-Z]) = (?P<expression>[a-zA-Z0-9*+/-]{1,});}'
+    found_eval_var = False
+    for script in scripts:
+        eval_var = re.search(re_eval_var, script)
+
+        if eval_var is None:
+            continue
+
+        init_bool_value = eval_var.group('boolean')
+        var_name = eval_var.group('var_name')
+        expression = eval_var.group('expression')
+
+        bool_value = True if init_bool_value == "true" else False
+        found_eval_var = True
+
+        if bool_value:
+            final_expr = expression.replace(var_name, _vars[var_name])
+
+            _vars[var_name] = str(evaluate(final_expr))
+
+    if not found_eval_var:
+        raise ParserError("Failed to find if (true||false) statement")
+
+    for var_name, var_value in _vars.items():
+        numbers_pattern = numbers_pattern.replace(var_name, var_value)
+    
+    numbers_pattern = re.sub(r'[()]', '', numbers_pattern)
+
+    final_numbers = str(int(evaluate(numbers_pattern)))
+    return url[:url.find('.')] + '.zippyshare.com' + init_url + final_numbers + file_url
 
 PATTERNS = [
     pattern1,
     pattern2,
     pattern3,
-    pattern4
+    pattern4,
+    pattern5
 ] 
