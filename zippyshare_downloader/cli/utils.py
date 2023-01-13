@@ -140,6 +140,12 @@ def setup_args():
     )
 
     parser.add_argument(
+        '--no-verify',
+        help='Disable SSL verification for HTTP(s) session',
+        action='store_true'
+    )
+
+    parser.add_argument(
         '--proxy',
         help='Set http/socks proxy'
     )
@@ -168,6 +174,8 @@ def setup_logging(name_module, verbose=False):
     return log
 
 def build_kwargs(args, urls):
+    print(args)
+
     # -pipe option will not enable progress bar because of downloader
     if args.json:
         progress_bar = False
@@ -187,7 +195,8 @@ def build_kwargs(args, urls):
         'async': args.async_process,
         'fast': args.fast,
         'pipe': args.pipe,
-        'json': args.json
+        'json': args.json,
+        'verify': not args.no_verify
     }
     return kwargs
 
