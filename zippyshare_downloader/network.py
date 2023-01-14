@@ -1,9 +1,6 @@
 import requests
 import aiohttp
 import asyncio
-import logging
-
-log = logging.getLogger(__name__)
 
 __all__ = (
     'Net', 'NetworkObject',
@@ -27,13 +24,6 @@ class aiohttpProxiedSession(aiohttp.ClientSession):
     def __init__(self, proxy, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.proxy = proxy
-        self.ssl = None
-
-    def set_ssl(self, ssl):
-        self.ssl = ssl
-
-    def remove_ssl(self):
-        self.ssl = None
 
     def set_proxy(self, proxy):
         self.proxy = proxy
@@ -42,7 +32,6 @@ class aiohttpProxiedSession(aiohttp.ClientSession):
         self.proxy = None
 
     async def _request(self, *args, **kwargs):
-        kwargs.update(ssl=self.ssl)
         kwargs.update(proxy=self.proxy)
         return await super()._request(*args, **kwargs)
 
@@ -53,8 +42,6 @@ class NetworkObject:
         self._proxy = proxy
         self._aiohttp = None # type: aiohttpProxiedSession
         self._trust_env = trust_env
-        self._verify = True
-
 
         # This will be disable proxy from environtments
         self._requests = None
@@ -108,29 +95,10 @@ class NetworkObject:
             self._aiohttp.remove_proxy()
             self._aiohttp._trust_env = False
 
-    def _update_aiohttp_ssl(self, ssl):
-        if self._aiohttp:
-            self._aiohttp.set_ssl(ssl)
-
     def _update_aiohttp_proxy(self, proxy):
         if self._aiohttp:
             self._aiohttp.set_proxy(proxy)
             self._aiohttp._trust_env = self._trust_env
-
-    def _create_aiohttp(self):
-        # Check if current asyncio loop is running
-        # if running create aiohttp session
-        # if not don't create it
-        loop = asyncio.get_event_loop()
-
-        # Raise error if using in another thread
-        if self._aiohttp and self._aiohttp._loop != loop:
-            raise RuntimeError('created aiohttp session cannot be used in different thread')
-
-        if self._aiohttp is None:
-            self._aiohttp = aiohttpProxiedSession(self.proxy)
-            self._update_aiohttp_proxy(self.proxy)
-            self._update_aiohttp_ssl(self._verify)
 
     @property
     def aiohttp(self):
@@ -147,15 +115,10 @@ class NetworkObject:
             self._requests.proxies.update(pr)
             self._requests.trust_env = self._trust_env
 
-    def _update_requests_verify(self, verify):
-        if self._requests:
-            self._requests.verify = verify
-
     def _create_requests(self):
         if self._requests is None:
             self._requests = requestsProxiedSession(self._trust_env)
             self._update_requests_proxy(self.proxy)
-            self._update_requests_verify(self.verify)
 
     @property
     def requests(self):
@@ -163,36 +126,31 @@ class NetworkObject:
         self._create_requests()
         return self._requests
 
-    @property
-    def verify(self):
-        return self._verify
-    
-    @verify.setter
-    def verify(self, value):
-        if not value:
-            log.warning(
-                "HTTP(s) ssl verify is set to False, " \
-                "be careful you might get MITM (Man in the Middle) attack"
-            )
+    def _create_aiohttp(self):
+        # Check if current asyncio loop is running
+        # if running create aiohttp session
+        # if not don't create it
+        loop = asyncio.get_event_loop()
 
-        self._verify = value
-        self._update_aiohttp_ssl(value)
-        self._update_requests_verify(value)
+        # Raise error if using in another thread
+        if self._aiohttp and self._aiohttp._loop != loop:
+            raise RuntimeError('created aiohttp session cannot be used in different thread')
+
+        if self._aiohttp is None:
+            self._aiohttp = aiohttpProxiedSession(self.proxy)
+            self._update_aiohttp_proxy(self.proxy)
 
     def close(self):
         """Close requests session only"""
-        if self._requests:
-            self._requests.close()
-            self._requests = None
+        self._requests.close()
+        self._requests = None
 
     async def close_async(self):
         """Close aiohttp & requests session"""
         self.close()
-        if self._aiohttp:
-            if not self._aiohttp.closed:
-                await self._aiohttp.close()
-            self._aiohttp = None
-
+        if not self._aiohttp.closed:
+            await self._aiohttp.close()
+        self._aiohttp = None
 Net = NetworkObject()
 
 def set_proxy(proxy):

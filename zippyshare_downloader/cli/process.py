@@ -158,16 +158,17 @@ def main():
         raise InvalidParameter('-pipe cannot be used with --no-download option')
 
     Net.trust_env = args.proxy_trust_env
-    Net.set_proxy(args.proxy)
-    Net.verify = not args.no_verify
 
     async_process = kwargs.pop('async')
     if not async_process:
+        Net.set_proxy(args.proxy)
         process(**kwargs)
         Net.close()
     else:
         # Little helper
         async def run_async():
+            if args.proxy:
+                Net.set_proxy(args.proxy)
             await process_async(**kwargs)
             await Net.close_async()
 
