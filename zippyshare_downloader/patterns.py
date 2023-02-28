@@ -94,6 +94,16 @@ def pattern1(body_string, url):
 def pattern2(body_string, url):
     # Getting download button javascript code
     parser = BeautifulSoup(body_string, bs4_parser)
+
+    # Make sure we don't find the fake one
+    duplicates = []
+    for script in parser.find_all('script'):
+        if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
+            duplicates.append(1)
+    
+    if len(duplicates) > 1:
+        raise ParserError("found duplicate script tag, pattern2 can't handle it")
+
     for script in parser.find_all('script'):
         if 'document.getElementById(\'dlbutton\').href' in script.decode_contents():
             scrapped_script = script.decode_contents()
@@ -380,10 +390,96 @@ def pattern5(body_string, url):
     final_numbers = str(int(evaluate(numbers_pattern)))
     return url[:url.find('.')] + '.zippyshare.com' + init_url + final_numbers + file_url
 
+def pattern6(body_string, url):
+    # Getting download button javascript code
+    parser = BeautifulSoup(body_string, bs4_parser)
+    for script in parser.find_all('script'):
+        decoded = script.decode_contents()
+        first_re_match = re.search(r"var ([a-zA-Z]{1,}) = ([0-9]{1,});", decoded)
+        if 'document.getElementById(\'dlbutton\').href' in decoded and first_re_match:
+            scrapped_script = script.decode_contents()
+            break
+        else:
+            scrapped_script = None
+    if scrapped_script is None:
+        raise ParserError('download button javascript cannot be found')
+
+    _vars = {}
+
+    # Find variable with numbers value
+    re_var_number = re.search(r"var ([a-zA-Z]{1,}) = ([0-9]{1,});", scrapped_script)
+    if re_var_number is None:
+        raise ParserError("variable with numbers only cannot be found")
+    var, value = re_var_number.group(1), re_var_number.group(2)
+    _vars[var] = value
+
+    # omg element
+    re_omg = r"document\.getElementById\('dlbutton'\)\.omg = (?P<expr>.{1,});"
+    result = re.search(re_omg, scrapped_script)
+    if result is None:
+        raise ParserError("omg element in scrapped script cannot be found")
+    omg = result.group("expr")
+
+    # Evaluate the omg element
+    re_eval_omg = r"var (?P<var>[a-zA-Z]) = parseInt\(document\.getElementById\('dlbutton'\)\.omg\) " \
+             r"(?P<operator>[%*+-/]{1}) (?P<value>\([0-9%*+-/]{1,}\));"
+    result = re.search(re_eval_omg, scrapped_script)
+    if result is None:
+        raise ParserError("evaluate omg element in scrapped script cannot be found")
+    var, value = result.group("var"), result.group("value")
+    _vars[var] = evaluate("{0} {1} {2}".format(
+        omg,
+        result.group("operator"),
+        value
+    ))
+
+    # Some function with conditional if
+    re_func = r"var (?P<var>[a-zA-Z]) = function\(\) \{if \((?P<bool>false|true)\) " \
+              r"\{return (?P<bool_true>.{1,})\} else \{return (?P<bool_false>.{1,})\}\};"
+    result = re.search(re_func, scrapped_script)
+    if result is None:
+        raise ParserError("cannot find function with if <bool> statement")
+    var, bool_value = result.group("var"), result.group("bool")
+    expr = result.group("bool_{0}".format(bool_value))
+    for var_name, var_value in _vars.items():
+        expr = expr.replace(var_name, str(var_value))
+
+    try:
+        _vars[var] = evaluate(expr)
+    except ZeroDivisionError:
+        # wtf, ZeroDivisionError ?
+        pass
+
+    scripts = io.StringIO(scrapped_script).readlines()
+    init_url = None
+    numbers_pattern = None
+    file_url = None
+    for script in scripts:
+        # Finding url download button
+        if script.strip().startswith('document.getElementById(\'dlbutton\').href'):
+            string_re_dlbutton = r"(?P<element>document\.getElementById\(\'dlbutton\'\)\.href    = \")" \
+                                 r"(?P<init_url>\/[a-zA-Z]\/[a-zA-Z0-9]{1,}\/)\"\+" \
+                                 r"(?P<num_expr>\([0-9a-zA-Z%*+-/()\/ ]{1,}\))\+\"(?P<file>\/.{1,})\";"
+            re_dlbutton = re.compile(string_re_dlbutton)
+            result = re_dlbutton.search(script)
+            if result:
+                init_url = result.group("init_url")
+                numbers_pattern = result.group("num_expr")
+                file_url = result.group("file")
+            else:
+                raise ParserError('Invalid regex pattern when finding url dlbutton')
+
+    for var_name, var_value in _vars.items():
+        numbers_pattern = numbers_pattern.replace(var_name, str(var_value))
+    
+    final_numbers = str(evaluate(numbers_pattern))
+    return url[:url.find('.')] + '.zippyshare.com' + init_url + final_numbers + file_url
+
 PATTERNS = [
     pattern1,
     pattern2,
     pattern3,
     pattern4,
-    pattern5
+    pattern5,
+    pattern6
 ] 
